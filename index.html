@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Rádio Gospel Lab — programação, mensagem do dia e avisos.">
+  <title>Rádio Gospel Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="site-header">
+      <h1>Rádio Gospel Lab</h1>
+      <p>Apresentando: Igreja Batista Luz</p>
+    </header>
+
+    <section class="section programming" aria-labelledby="programming-title">
+      <div class="section-heading">
+        <h2 id="programming-title">Programação</h2>
+        <span class="audience" title="Visitas nesta sessão"><span aria-hidden="true">◉</span> <span id="view-counter">—</span></span>
+      </div>
+
+      <div class="live-status"><span id="live-dot" class="live-dot"></span><span id="live-label">Pronto para começar</span></div>
+      <button id="radio-toggle" class="radio-toggle" type="button" aria-pressed="false">
+        <span id="radio-icon" aria-hidden="true">▶</span>
+        <span id="radio-status">Iniciar rádio</span>
+      </button>
+
+      <div class="now-playing" aria-live="polite">
+        <div class="track-label">Tocando agora</div>
+        <div id="current-title" class="track-title">Aguardando início</div>
+        <div class="progress-row">
+          <span id="elapsed-time">00:00</span>
+          <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
+          <span id="remaining-time">00:00</span>
+        </div>
+        <div class="next-track"><span>Próxima:</span> <strong id="next-title">—</strong></div>
+      </div>
+
+      <div class="player-controls">
+        <label for="volume-control">Volume</label>
+        <input id="volume-control" type="range" min="0" max="1" value="0.85" step="0.01" aria-label="Volume">
+        <button id="mute-toggle" class="text-button" type="button" aria-pressed="false">Silenciar</button>
+        <span id="queue-status" class="queue-status">Fila local</span>
+      </div>
+      <p id="player-message" class="player-message" role="status"></p>
+    </section>
+
+    <section class="section" aria-labelledby="message-title">
+      <div class="section-heading"><h2 id="message-title">Mensagem do Dia</h2></div>
+      <div id="message-content" class="expandable-content is-collapsed"><p>Carregando mensagem...</p></div>
+      <button class="more-button" id="message-toggle" type="button">Ver mais</button>
+    </section>
+
+    <section class="section" aria-labelledby="notices-title">
+      <div class="section-heading"><h2 id="notices-title">Avisos</h2></div>
+      <div id="notices-content" class="notice-box"><p>Carregando avisos...</p></div>
+    </section>
+
+    <section class="section" aria-labelledby="sponsors-title">
+      <div class="section-heading"><h2 id="sponsors-title">Patrocinadores</h2></div>
+      <div id="sponsors-content" class="expandable-content sponsors is-collapsed"><p>Carregando patrocinadores...</p></div>
+      <button class="more-button" id="sponsors-toggle" type="button">Ver mais</button>
+    </section>
+
+    <footer>
+      <div class="footer-rule"></div>
+      <p>Copyright © <span id="current-year">2026</span> Rádio Gospel Lab</p>
+      <p>Hospedado no GitHub Pages</p>
+    </footer>
+  </main>
+
+  <audio id="audio-a" preload="metadata"></audio>
+  <audio id="audio-b" preload="metadata"></audio>
+  <script src="app.js" defer></script>
+</body>
+</html>
