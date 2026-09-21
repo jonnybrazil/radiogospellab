@@ -1,16 +1,15 @@
 (() => {
   "use strict";
 
-  // Para usar uma planilha publicada como CSV, cole aqui a URL de publicação.
-  // Se ficar vazio, o app usa playlist.csv do próprio repositório.
-  const PLAYLIST_SOURCE_URL = "";
+  const PROGRAMMING_ENDPOINT = "https://script.google.com/macros/s/AKfycbzkE71Ni1fymWo2HkL0dbaPQYFPCk8jAIQueNosF17s1Fx-Qo9f2dTHv4eFM6qkJQafGw/exec";
+  const LOCAL_PLAYLIST_SOURCE = "playlist.csv";
   const CONTENT = {
     message: "mensagem.txt",
     notices: "avisos.txt",
     sponsors: "patrocinadores.html"
   };
-  const REFRESH_MS = 60_000;
-  const CROSSFADE_SECONDS = 6;
+  const DEFAULT_REFRESH_MS = 60_000;
+  const DEFAULT_CROSSFADE_SECONDS = 6;
   const DEFAULT_VOLUME = 0.85;
 
   const $ = (id) => document.getElementById(id);
@@ -21,9 +20,10 @@
   let currentTrack = null;
   let nextTrack = null;
   let playing = false;
-  let userPaused = false;
   let transitioning = false;
   let refreshTimer;
+  let refreshMs = DEFAULT_REFRESH_MS;
+  let crossfadeSeconds = DEFAULT_CROSSFADE_SECONDS;
   let audioContext = null;
   let gain = [];
   let masterGain = null;
@@ -32,6 +32,7 @@
 
   const setText = (id, value) => { const node = $(id); if (node) node.textContent = value; };
   const cacheBust = (url) => `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
+  const absoluteAudioUrl = (path) => { try { return new URL(path, document.baseURI).href; } catch (_) { return path; } };
 
   function parseCSV(text) {
     const rows = [];
@@ -52,7 +53,7 @@
     return rows;
   }
 
-  function parsePlaylist(text) {
+  function parseLocalPlaylist(text) {
     const rows = parseCSV(text).filter(row => row[0] && !row[0].startsWith('#'));
     if (!rows.length) return [];
     const header = rows[0].map(v => v.toLowerCase());
@@ -62,16 +63,31 @@
     const urlAt = hasHeader ? Math.max(header.indexOf('url'), header.indexOf('arquivo'), header.indexOf('file')) : 1;
     return data.map(row => {
       const rawUrl = row[urlAt] || '';
-      const url = rawUrl.startsWith('http') ? rawUrl : rawUrl.replace(/^\.\//, '');
-      return { title: row[titleAt] || url.split('/').pop() || 'Sem título', url };
+      return { title: row[titleAt] || rawUrl.split('/').pop() || 'Sem título', url: absoluteAudioUrl(rawUrl) };
     }).filter(track => track.url);
   }
 
-  async function loadPlaylist() {
-    const source = PLAYLIST_SOURCE_URL || 'playlist.csv';
-    const response = await fetch(cacheBust(source), { cache: 'no-store' });
+  async function loadPlaylistFromEndpoint() {
+    const response = await fetch(cacheBust(PROGRAMMING_ENDPOINT), { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Programação indisponível (${response.status})`);
+    const payload = await response.json();
+    if (!Array.isArray(payload.playlist) || !payload.playlist.length) throw new Error('Programação vazia');
+    refreshMs = Math.max(15_000, Number(payload.refreshSeconds || 60) * 1000);
+    crossfadeSeconds = Math.max(1, Number(payload.crossfadeSeconds || DEFAULT_CROSSFADE_SECONDS));
+    return payload.playlist.map(track => ({ title: track.title || track.path, url: absoluteAudioUrl(track.path), number: track.number }));
+  }
+
+  async function loadPlaylistFromFile() {
+    const response = await fetch(cacheBust(LOCAL_PLAYLIST_SOURCE), { cache: 'no-store' });
     if (!response.ok) throw new Error(`Playlist indisponível (${response.status})`);
-    const fresh = parsePlaylist(await response.text());
+    return parseLocalPlaylist(await response.text());
+  }
+
+  async function loadPlaylist() {
+    let fresh;
+    let remote = true;
+    try { fresh = await loadPlaylistFromEndpoint(); }
+    catch (_) { remote = false; fresh = await loadPlaylistFromFile(); }
     if (!fresh.length) throw new Error('Playlist vazia');
     const oldUrl = currentTrack?.url;
     playlist = fresh;
@@ -79,7 +95,25 @@
     if (stillCurrent >= 0) currentIndex = (stillCurrent + 1) % playlist.length;
     else if (currentIndex >= playlist.length) currentIndex = 0;
     updateNextLabel();
-    setText('queue-status', PLAYLIST_SOURCE_URL ? 'Google Sheets' : `Fila local · ${playlist.length} faixas`);
+    setText('queue-status', remote ? 'Google Sheets' : `Fila local · ${playlist.length} faixas`);
+    schedulePlaylistRefresh();
+  }
+
+  function schedulePlaylistRefresh() {
+    if (refreshTimer) clearTimeout(refreshTimer);
+    refreshTimer = window.setTimeout(async () => {
+      try { await loadPlaylist(); } catch (_) { schedulePlaylistRefresh(); }
+    }, refreshMs);
+  }
+
+  async function registerVisit() {
+    try {
+      const url = `${PROGRAMMING_ENDPOINT}?action=visit&page=home`;
+      const response = await fetch(cacheBust(url), { cache: 'no-store' });
+      if (!response.ok) throw new Error('Não foi possível registrar a visita');
+      const payload = await response.json();
+      if (Number.isFinite(Number(payload.visitsTotal))) setText('view-counter', Number(payload.visitsTotal).toLocaleString('pt-BR'));
+    } catch (_) { setText('view-counter', '—'); }
   }
 
   async function loadContent(id, url, html = false) {
@@ -100,14 +134,8 @@
   function ensureAudioGraph() {
     if (audioContext) { if (audioContext.state === 'suspended') audioContext.resume(); return; }
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    masterGain = audioContext.createGain();
-    masterGain.gain.value = volume;
-    gain = audio.map(element => {
-      const source = audioContext.createMediaElementSource(element);
-      const node = audioContext.createGain(); node.gain.value = 0;
-      source.connect(node).connect(masterGain);
-      return node;
-    });
+    masterGain = audioContext.createGain(); masterGain.gain.value = volume;
+    gain = audio.map(element => { const source = audioContext.createMediaElementSource(element); const node = audioContext.createGain(); node.gain.value = 0; source.connect(node).connect(masterGain); return node; });
     masterGain.connect(audioContext.destination);
   }
 
@@ -123,78 +151,53 @@
     navigator.mediaSession.setActionHandler('nexttrack', () => { if (playing) startNextTrack(true); });
   }
 
-  function prepareNext() {
-    nextTrack = playlist[currentIndex] || null;
-    updateNextLabel();
-  }
+  function prepareNext() { nextTrack = playlist[currentIndex] || null; updateNextLabel(); }
 
   async function startTrack(track, index, immediate = false) {
     if (!track) return;
     ensureAudioGraph();
     const nextPlayer = active === 0 ? 1 : 0;
     const element = audio[nextPlayer];
-    element.src = track.url;
-    element.load();
-    try { await element.play(); } catch (error) { showPlayerMessage('Toque em Iniciar rádio para liberar o áudio.'); return; }
-    const now = audioContext.currentTime;
+    element.src = track.url; element.load();
+    try { await element.play(); } catch (_) { showPlayerMessage('Toque em Iniciar rádio para liberar o áudio.'); return; }
     setGain(nextPlayer, 0, 0);
-    setGain(nextPlayer, effectiveVolume() > 0 ? 1 : 0, immediate ? .01 : CROSSFADE_SECONDS);
-    if (!immediate) setGain(active, 0, CROSSFADE_SECONDS);
-    const oldPlayer = active;
-    active = nextPlayer;
-    currentTrack = track;
-    currentIndex = (index + 1) % playlist.length;
-    prepareNext();
-    updateMetadata(track);
-    setText('current-title', track.title);
-    setText('radio-status', 'Pausar rádio');
-    $('radio-toggle').setAttribute('aria-pressed', 'true');
-    $('radio-icon').textContent = 'Ⅱ';
-    $('live-dot').classList.add('is-live');
-    setText('live-label', 'Ao vivo');
-    if (!immediate) window.setTimeout(() => { audio[oldPlayer].pause(); audio[oldPlayer].removeAttribute('src'); }, CROSSFADE_SECONDS * 1000 + 250);
+    setGain(nextPlayer, effectiveVolume() > 0 ? 1 : 0, immediate ? .01 : crossfadeSeconds);
+    if (!immediate) setGain(active, 0, crossfadeSeconds);
+    const oldPlayer = active; active = nextPlayer; currentTrack = track; currentIndex = (index + 1) % playlist.length;
+    prepareNext(); updateMetadata(track); setText('current-title', track.title); setText('radio-status', 'Pausar rádio'); $('radio-toggle').setAttribute('aria-pressed', 'true'); $('radio-icon').textContent = 'Ⅱ'; $('live-dot').classList.add('is-live'); setText('live-label', 'Ao vivo');
+    if (!immediate) window.setTimeout(() => { audio[oldPlayer].pause(); audio[oldPlayer].removeAttribute('src'); }, crossfadeSeconds * 1000 + 250);
   }
 
   async function startNextTrack(force = false) {
     if (!playing || transitioning || !playlist.length) return;
     transitioning = true;
     const track = nextTrack || playlist[currentIndex];
-    const index = nextTrack ? currentIndex : currentIndex;
+    const index = currentIndex;
     nextTrack = null;
     await startTrack(track, index, force || !currentTrack);
     transitioning = false;
   }
 
   function onTimeUpdate() {
-    const element = audio[active];
-    const duration = element.duration;
+    const element = audio[active], duration = element.duration;
     if (!Number.isFinite(duration)) return;
     const remaining = duration - element.currentTime;
     $('progress-fill').style.width = `${Math.min(100, (element.currentTime / duration) * 100)}%`;
-    setText('elapsed-time', formatTime(element.currentTime));
-    setText('remaining-time', `-${formatTime(remaining)}`);
-    if (remaining <= CROSSFADE_SECONDS + .15 && !transitioning) startNextTrack();
+    setText('elapsed-time', formatTime(element.currentTime)); setText('remaining-time', `-${formatTime(remaining)}`);
+    if (remaining <= crossfadeSeconds + .15 && !transitioning) startNextTrack();
   }
 
-  function stopRadio() {
-    playing = false; userPaused = true;
-    audio.forEach((element, index) => { element.pause(); if (gain[index]) setGain(index, 0, .1); });
-    setText('radio-status', 'Continuar rádio'); $('radio-icon').textContent = '▶'; $('live-dot').classList.remove('is-live'); setText('live-label', 'Pausado');
-    $('radio-toggle').setAttribute('aria-pressed', 'false');
-  }
+  function stopRadio() { playing = false; audio.forEach((element, index) => { element.pause(); if (gain[index]) setGain(index, 0, .1); }); setText('radio-status', 'Continuar rádio'); $('radio-icon').textContent = '▶'; $('live-dot').classList.remove('is-live'); setText('live-label', 'Pausado'); $('radio-toggle').setAttribute('aria-pressed', 'false'); }
 
   async function toggleRadio() {
     if (playing) { stopRadio(); return; }
-    try { await loadPlaylist(); } catch (error) { showPlayerMessage('Não foi possível carregar a playlist.'); return; }
-    ensureAudioGraph();
-    if (audioContext.state === 'suspended') await audioContext.resume();
-    playing = true; userPaused = false;
+    try { await loadPlaylist(); } catch (_) { showPlayerMessage('Não foi possível carregar a playlist.'); return; }
+    ensureAudioGraph(); if (audioContext.state === 'suspended') await audioContext.resume(); playing = true;
     if (currentTrack && audio[active].src) { await audio[active].play(); setGain(active, effectiveVolume(), .1); setText('radio-status', 'Pausar rádio'); $('radio-icon').textContent = 'Ⅱ'; $('live-dot').classList.add('is-live'); setText('live-label', 'Ao vivo'); }
     else await startNextTrack(true);
   }
 
   function showPlayerMessage(message) { setText('player-message', message); window.setTimeout(() => { if ($('player-message').textContent === message) setText('player-message', ''); }, 6000); }
-
   function setupControls() {
     $('radio-toggle').addEventListener('click', toggleRadio);
     $('volume-control').addEventListener('input', event => { volume = Number(event.target.value); muted = false; $('mute-toggle').setAttribute('aria-pressed', 'false'); setMasterVolume(); if (gain[active]) setGain(active, volume, .05); });
@@ -206,14 +209,12 @@
 
   function toggleExpandable(contentId, buttonId) { const content = $(contentId), button = $(buttonId); const open = content.classList.toggle('is-open'); button.textContent = open ? 'Ver menos' : 'Ver mais'; }
   function setupServiceWorker() { if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {})); }
-  function setupViews() { const key = 'rgl-visits'; const count = Number(localStorage.getItem(key) || 126) + 1; localStorage.setItem(key, count); setText('view-counter', count); setText('current-year', new Date().getFullYear()); }
 
   async function init() {
-    setupControls(); setupServiceWorker(); setupViews();
-    await Promise.all([loadContent('message-content', CONTENT.message), loadContent('notices-content', CONTENT.notices), loadContent('sponsors-content', CONTENT.sponsors, true)]);
-    try { await loadPlaylist(); } catch (_) { setText('queue-status', 'Playlist em configuração'); }
-    refreshTimer = window.setInterval(async () => { try { await loadPlaylist(); } catch (_) {} }, REFRESH_MS);
-    window.addEventListener('pagehide', () => { if (refreshTimer) clearInterval(refreshTimer); });
+    setupControls(); setupServiceWorker(); setText('current-year', new Date().getFullYear());
+    await Promise.all([registerVisit(), loadContent('message-content', CONTENT.message), loadContent('notices-content', CONTENT.notices), loadContent('sponsors-content', CONTENT.sponsors, true)]);
+    try { await loadPlaylist(); } catch (_) { setText('queue-status', 'Playlist em configuração'); schedulePlaylistRefresh(); }
+    window.addEventListener('pagehide', () => { if (refreshTimer) clearTimeout(refreshTimer); });
   }
   document.addEventListener('DOMContentLoaded', init);
 })();

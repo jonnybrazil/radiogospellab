@@ -18,17 +18,17 @@ Home page de uma pseudo-rádio ao vivo para a Igreja Batista Luz, hospedável no
 
 ## Google Sheets
 
-Para publicar a sequência a partir do Google Sheets, publique a aba como CSV e cole a URL em `PLAYLIST_SOURCE_URL`, no início de `app.js`.
+A programação e o contador de visitas usam um Google Apps Script publicado como Web App. A URL do endpoint está configurada no início de `app.js`. O site consulta a programação conforme o intervalo definido na aba `Config`, sem recarregar a página, e registra cada carregamento da home na aba `Visitas`.
 
-A planilha deve conter pelo menos duas colunas:
+A aba `Playlist` usa estas colunas:
 
 ```csv
-title,url
-Abrigo na Rocha,abrigo_na_rocha.mp3
-Aquele Dia,aquele_dia.mp3
+numero_faixa,ordem,título,caminho,ativo
+101,1,Abrigo na Rocha,abrigo_na_rocha.mp3,SIM
+102,2,Aquele Dia,aquele_dia.mp3,SIM
 ```
 
-A URL pode ser uma URL completa para o arquivo de áudio ou apenas o nome do arquivo hospedado no mesmo repositório. A aplicação verifica a fonte novamente a cada 60 segundos, sem atualizar a página.
+A célula `Config!B2` controla a sequência manual, por exemplo `101,102,103`. O Apps Script também retorna o total de visitas acumulado em `Visitas`.
 
 ## Publicação
 
