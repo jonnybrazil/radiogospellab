@@ -2,7 +2,7 @@
   --ink: #222;
   --muted: #6d6d6d;
   --line: #d9d9d9;
-  --accent: #3e7d58;
+  --accent: #b3262d;
   --paper: #fff;
 }
 
@@ -26,27 +26,17 @@ button { color: inherit; }
 .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); }
 h2 { margin: 0 0 8px; font: 700 2.15rem/1 "Amatic SC", cursive; letter-spacing: 1px; }
 .audience { color: var(--muted); font-size: 11px; padding-bottom: 10px; white-space: nowrap; }
+.eye-icon { width: 14px; height: 14px; vertical-align: -2px; fill: none; stroke: currentColor; stroke-width: 1.5; }
 .live-status { display: flex; align-items: center; gap: 7px; margin-top: 14px; color: var(--muted); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #c7c7c7; display: inline-block; }
-.live-dot.is-live { background: var(--accent); box-shadow: 0 0 0 3px rgba(62,125,88,.12); }
-.radio-toggle { display: inline-flex; align-items: center; gap: 10px; margin: 8px 0 15px; padding: 0; border: 0; background: transparent; cursor: pointer; font-size: 14px; letter-spacing: .5px; text-transform: uppercase; }
+.live-dot.is-live { background: #c62828; box-shadow: 0 0 0 3px rgba(198,40,40,.12); }
+.radio-toggle { display: inline-flex; align-items: center; gap: 10px; margin: 10px 0 4px; padding: 0; border: 0; background: transparent; cursor: pointer; font-size: 14px; letter-spacing: .5px; text-transform: uppercase; }
 .radio-toggle:hover, .radio-toggle:focus-visible { color: var(--accent); }
 .radio-toggle:focus-visible, .text-button:focus-visible, .more-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-#radio-icon { min-width: 16px; font-size: 15px; }
-.now-playing { border-left: 2px solid var(--line); padding: 1px 0 1px 14px; }
-.track-label { color: var(--muted); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
-.track-title { min-height: 24px; margin-top: 2px; font-size: 15px; font-weight: 700; }
-.progress-row { display: flex; align-items: center; gap: 8px; margin-top: 9px; color: var(--muted); font-size: 10px; }
-.progress-track { height: 3px; flex: 1; background: #ececec; overflow: hidden; }
-.progress-fill { width: 0; height: 100%; background: var(--ink); transition: width .2s linear; }
-.next-track { margin-top: 8px; color: var(--muted); font-size: 11px; }
-.next-track strong { color: var(--ink); font-weight: 400; }
-.player-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; margin-top: 17px; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
-#volume-control { width: 110px; accent-color: var(--ink); }
+#radio-icon { min-width: 16px; font-size: 16px; line-height: 1; }
+.radio-toggle strong { font-weight: 700; text-transform: none; }
 .text-button, .more-button { border: 0; background: transparent; padding: 0; cursor: pointer; color: var(--muted); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
 .text-button:hover, .more-button:hover { color: var(--ink); }
-.queue-status { margin-left: auto; font-size: 9px; }
-.player-message { min-height: 18px; margin: 10px 0 0; color: #8c4c34; font-size: 11px; }
 .expandable-content { overflow: hidden; max-height: 72px; transition: max-height .45s ease; }
 .expandable-content.is-open { max-height: 1400px; }
 .expandable-content p { margin: 12px 0 0; }
@@ -64,7 +54,6 @@ h2 { margin: 0 0 8px; font: 700 2.15rem/1 "Amatic SC", cursive; letter-spacing: 
 .notice-box p { margin: 0 0 10px; }
 .sponsors a { color: inherit; }
 footer { margin-top: 40px; color: var(--muted); font-size: 9px; line-height: 1.35; text-align: center; letter-spacing: .4px; }
-.footer-rule { border-top: 1px solid var(--line); margin-bottom: 18px; }
 footer p { margin: 2px 0; }
 @media (max-width: 480px) {
   .page-shell { padding: 28px 18px 22px; }

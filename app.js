@@ -232,7 +232,7 @@
     setGain(nextPlayer, effectiveVolume() > 0 ? 1 : 0, immediate ? .01 : crossfadeSeconds);
     if (!immediate) setGain(active, 0, crossfadeSeconds);
     const oldPlayer = active; active = nextPlayer; currentTrack = track; currentIndex = (index + 1) % playlist.length;
-    prepareNext(); updateMetadata(track); setText('current-title', track.title); setText('radio-status', 'Pausar rádio'); $('radio-toggle').setAttribute('aria-pressed', 'true'); $('radio-icon').textContent = 'Ⅱ'; $('live-dot').classList.add('is-live'); setText('live-label', 'Ao vivo');
+    prepareNext(); updateMetadata(track); setText('current-title', track.title); $('radio-toggle').setAttribute('aria-pressed', 'true'); $('radio-toggle').setAttribute('aria-label', `Pausar ${track.title}`); $('radio-icon').textContent = '⏸'; $('live-dot').classList.add('is-live'); setText('live-label', 'Ao vivo');
     if (!immediate) window.setTimeout(() => { audio[oldPlayer].pause(); audio[oldPlayer].removeAttribute('src'); }, crossfadeSeconds * 1000 + 250);
   }
 
@@ -250,26 +250,22 @@
     const element = audio[active], duration = element.duration;
     if (!Number.isFinite(duration)) return;
     const remaining = duration - element.currentTime;
-    $('progress-fill').style.width = `${Math.min(100, (element.currentTime / duration) * 100)}%`;
-    setText('elapsed-time', formatTime(element.currentTime)); setText('remaining-time', `-${formatTime(remaining)}`);
     if (remaining <= crossfadeSeconds + .15 && !transitioning) startNextTrack();
   }
 
-  function stopRadio() { playing = false; audio.forEach((element, index) => { element.pause(); if (gain[index]) setGain(index, 0, .1); }); setText('radio-status', 'Continuar rádio'); $('radio-icon').textContent = '▶'; $('live-dot').classList.remove('is-live'); setText('live-label', 'Pausado'); $('radio-toggle').setAttribute('aria-pressed', 'false'); }
+  function stopRadio() { playing = false; audio.forEach((element, index) => { element.pause(); if (gain[index]) setGain(index, 0, .1); }); $('radio-icon').textContent = '▶'; $('live-dot').classList.remove('is-live'); setText('live-label', 'Pausado'); $('radio-toggle').setAttribute('aria-pressed', 'false'); $('radio-toggle').setAttribute('aria-label', `Continuar ${currentTrack?.title || 'rádio'}`); }
 
   async function toggleRadio() {
     if (playing) { stopRadio(); return; }
     try { await loadPlaylist(); } catch (_) { showPlayerMessage('Não foi possível carregar a playlist.'); return; }
     ensureAudioGraph(); if (audioContext.state === 'suspended') await audioContext.resume(); playing = true;
-    if (currentTrack && audio[active].src) { await audio[active].play(); setGain(active, effectiveVolume(), .1); setText('radio-status', 'Pausar rádio'); $('radio-icon').textContent = 'Ⅱ'; $('live-dot').classList.add('is-live'); setText('live-label', 'Ao vivo'); }
+    if (currentTrack && audio[active].src) { await audio[active].play(); setGain(active, effectiveVolume(), .1); $('radio-icon').textContent = '⏸'; $('live-dot').classList.add('is-live'); setText('live-label', 'Ao vivo'); $('radio-toggle').setAttribute('aria-label', `Pausar ${currentTrack.title}`); }
     else await startNextTrack(true);
   }
 
   function showPlayerMessage(message) { setText('player-message', message); window.setTimeout(() => { if ($('player-message').textContent === message) setText('player-message', ''); }, 6000); }
   function setupControls() {
     $('radio-toggle').addEventListener('click', toggleRadio);
-    $('volume-control').addEventListener('input', event => { volume = Number(event.target.value); muted = false; $('mute-toggle').setAttribute('aria-pressed', 'false'); setMasterVolume(); if (gain[active]) setGain(active, volume, .05); });
-    $('mute-toggle').addEventListener('click', () => { muted = !muted; $('mute-toggle').textContent = muted ? 'Ativar som' : 'Silenciar'; $('mute-toggle').setAttribute('aria-pressed', String(muted)); setMasterVolume(); });
     $('message-toggle').addEventListener('click', () => toggleExpandable('message-content', 'message-toggle'));
     $('sponsors-toggle').addEventListener('click', () => toggleExpandable('sponsors-content', 'sponsors-toggle'));
     audio.forEach(element => { element.addEventListener('timeupdate', onTimeUpdate); element.addEventListener('ended', () => { if (element === audio[active] && playing) startNextTrack(); }); element.addEventListener('error', () => { if (element === audio[active]) showPlayerMessage('Não foi possível carregar esta faixa. Pulando para a próxima.'); }); });

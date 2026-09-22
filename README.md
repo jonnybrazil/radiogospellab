@@ -34,6 +34,8 @@ A aba `Avisos` usa as colunas `ordem`, `texto` e `ativo`. O Apps Script retorna 
 
 A aba `Patrocinio` usa `ordem`, `nome`, `imagem_url`, `descricao`, `link_compra` e `ativo`. Os produtos ativos são exibidos em dois cards por linha, com imagem e informação lado a lado, formando quatro colunas visuais no desktop. A seção fica fechada por padrão e é aberta pelo botão `Ver mais`. Os links usam `rel="sponsored nofollow noopener"`.
 
+A home usa o título `RADIOGOSPELLAB`, um ícone de olho para o contador, indicador ao vivo vermelho e um player minimalista com apenas play/pausa e título da faixa. A página independente `em-construcao.html` usa o mesmo visual para períodos de manutenção ou preparação.
+
 ## Publicação
 
 No GitHub, habilite **Settings → Pages → Deploy from a branch → main → / (root)**. Após a publicação, a página ficará disponível na URL do GitHub Pages do repositório.
