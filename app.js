@@ -29,6 +29,9 @@
   let masterGain = null;
   let volume = DEFAULT_VOLUME;
   let muted = false;
+  let noticesLoaded = false;
+  let noticeTimer = null;
+  let noticeIndex = 0;
 
   const setText = (id, value) => { const node = $(id); if (node) node.textContent = value; };
   const cacheBust = (url) => `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
@@ -74,6 +77,7 @@
     if (!Array.isArray(payload.playlist) || !payload.playlist.length) throw new Error('Programação vazia');
     refreshMs = Math.max(15_000, Number(payload.refreshSeconds || 60) * 1000);
     crossfadeSeconds = Math.max(1, Number(payload.crossfadeSeconds || DEFAULT_CROSSFADE_SECONDS));
+    applyRemoteNotices(payload.notices);
     return payload.playlist.map(track => ({ title: track.title || track.path, url: absoluteAudioUrl(track.path), number: track.number }));
   }
 
@@ -125,6 +129,28 @@
       if (html) node.innerHTML = text;
       else node.innerHTML = text.split(/\r?\n/).filter(line => line.trim() && !line.trim().startsWith('#')).map(line => `<p>${escapeHtml(line.trim())}</p>`).join('') || '<p>Conteúdo em atualização.</p>';
     } catch (_) { setText(id, 'Conteúdo em atualização.'); }
+  }
+
+  function applyRemoteNotices(items) {
+    if (!Array.isArray(items) || !items.length) return false;
+    const valid = items.map(item => String(item?.text || '').trim()).filter(Boolean);
+    if (!valid.length) return false;
+    noticesLoaded = true;
+    if (noticeTimer) clearInterval(noticeTimer);
+    noticeIndex = 0;
+    const node = $('notices-content');
+    const show = (text, fading = false) => {
+      if (fading) node.classList.add('is-fading');
+      window.setTimeout(() => { node.textContent = text; node.classList.remove('is-fading'); }, fading ? 500 : 0);
+    };
+    show(valid[noticeIndex]);
+    if (valid.length > 1) {
+      noticeTimer = window.setInterval(() => {
+        noticeIndex = (noticeIndex + 1) % valid.length;
+        show(valid[noticeIndex], true);
+      }, 10_000);
+    }
+    return true;
   }
 
   function escapeHtml(value) { return value.replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[ch])); }
@@ -212,8 +238,9 @@
 
   async function init() {
     setupControls(); setupServiceWorker(); setText('current-year', new Date().getFullYear());
-    await Promise.all([registerVisit(), loadContent('message-content', CONTENT.message), loadContent('notices-content', CONTENT.notices), loadContent('sponsors-content', CONTENT.sponsors, true)]);
+    await Promise.all([registerVisit(), loadContent('message-content', CONTENT.message), loadContent('sponsors-content', CONTENT.sponsors, true)]);
     try { await loadPlaylist(); } catch (_) { setText('queue-status', 'Playlist em configuração'); schedulePlaylistRefresh(); }
+    if (!noticesLoaded) await loadContent('notices-content', CONTENT.notices);
     window.addEventListener('pagehide', () => { if (refreshTimer) clearTimeout(refreshTimer); });
   }
   document.addEventListener('DOMContentLoaded', init);

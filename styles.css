@@ -51,7 +51,8 @@ h2 { margin: 0 0 8px; font: 700 2.15rem/1 "Amatic SC", cursive; letter-spacing: 
 .expandable-content.is-open { max-height: 1400px; }
 .expandable-content p { margin: 12px 0 0; }
 .more-button { display: block; margin-top: 11px; }
-.notice-box { min-height: 26px; margin-top: 12px; }
+.notice-box { min-height: 26px; margin-top: 12px; transition: opacity .5s ease-in-out; }
+.notice-box.is-fading { opacity: 0; }
 .notice-box p { margin: 0 0 10px; }
 .sponsors a { color: inherit; }
 footer { margin-top: 40px; color: var(--muted); font-size: 9px; line-height: 1.35; text-align: center; letter-spacing: .4px; }

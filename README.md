@@ -30,6 +30,8 @@ numero_faixa,ordem,título,caminho,ativo
 
 A célula `Config!B2` controla a sequência manual, por exemplo `101,102,103`. O Apps Script também retorna o total de visitas acumulado em `Visitas`.
 
+A aba `Avisos` usa as colunas `ordem`, `texto` e `ativo`. O Apps Script retorna os avisos ativos ordenados, e o site alterna os textos a cada 10 segundos com fade-out e fade-in de 500 ms. Se não houver avisos ativos na planilha, o arquivo local `avisos.txt` é usado como fallback.
+
 ## Publicação
 
 No GitHub, habilite **Settings → Pages → Deploy from a branch → main → / (root)**. Após a publicação, a página ficará disponível na URL do GitHub Pages do repositório.
