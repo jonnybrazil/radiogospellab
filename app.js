@@ -32,6 +32,7 @@
   let noticesLoaded = false;
   let noticeTimer = null;
   let noticeIndex = 0;
+  let sponsorsLoaded = false;
 
   const setText = (id, value) => { const node = $(id); if (node) node.textContent = value; };
   const cacheBust = (url) => `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
@@ -78,6 +79,7 @@
     refreshMs = Math.max(15_000, Number(payload.refreshSeconds || 60) * 1000);
     crossfadeSeconds = Math.max(1, Number(payload.crossfadeSeconds || DEFAULT_CROSSFADE_SECONDS));
     applyRemoteNotices(payload.notices);
+    applyRemoteSponsors(payload.sponsors);
     return payload.playlist.map(track => ({ title: track.title || track.path, url: absoluteAudioUrl(track.path), number: track.number }));
   }
 
@@ -150,6 +152,46 @@
         show(valid[noticeIndex], true);
       }, 10_000);
     }
+    return true;
+  }
+
+  function safeHttpUrl(value) {
+    try {
+      const url = new URL(String(value || ''), document.baseURI);
+      return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : '';
+    } catch (_) { return ''; }
+  }
+
+  function applyRemoteSponsors(items) {
+    if (!Array.isArray(items) || !items.length) return false;
+    const grid = $('sponsors-grid');
+    if (!grid) return false;
+    const valid = items.filter(item => item && item.name && safeHttpUrl(item.imageUrl) && safeHttpUrl(item.purchaseUrl));
+    if (!valid.length) return false;
+    sponsorsLoaded = true;
+    grid.replaceChildren();
+    valid.forEach(item => {
+      const card = document.createElement('article');
+      card.className = 'sponsor-card';
+      const image = document.createElement('img');
+      image.src = safeHttpUrl(item.imageUrl);
+      image.alt = item.name;
+      image.loading = 'lazy';
+      const info = document.createElement('div');
+      info.className = 'sponsor-info';
+      const name = document.createElement('h3');
+      name.textContent = item.name;
+      const description = document.createElement('p');
+      description.textContent = item.description || '';
+      const link = document.createElement('a');
+      link.href = safeHttpUrl(item.purchaseUrl);
+      link.target = '_blank';
+      link.rel = 'sponsored nofollow noopener';
+      link.textContent = 'Ver produto';
+      info.append(name, description, link);
+      card.append(image, info);
+      grid.append(card);
+    });
     return true;
   }
 
@@ -238,9 +280,10 @@
 
   async function init() {
     setupControls(); setupServiceWorker(); setText('current-year', new Date().getFullYear());
-    await Promise.all([registerVisit(), loadContent('message-content', CONTENT.message), loadContent('sponsors-content', CONTENT.sponsors, true)]);
+    await Promise.all([registerVisit(), loadContent('message-content', CONTENT.message)]);
     try { await loadPlaylist(); } catch (_) { setText('queue-status', 'Playlist em configuração'); schedulePlaylistRefresh(); }
     if (!noticesLoaded) await loadContent('notices-content', CONTENT.notices);
+    if (!sponsorsLoaded) await loadContent('sponsors-grid', CONTENT.sponsors, true);
     window.addEventListener('pagehide', () => { if (refreshTimer) clearTimeout(refreshTimer); });
   }
   document.addEventListener('DOMContentLoaded', init);

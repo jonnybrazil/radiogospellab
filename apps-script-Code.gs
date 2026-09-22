@@ -3,6 +3,7 @@ const PLAYLIST_SHEET = 'Playlist';
 const CONFIG_SHEET = 'Config';
 const VISITS_SHEET = 'Visitas';
 const NOTICES_SHEET = 'Avisos';
+const SPONSORS_SHEET = 'Patrocinio';
 
 function doGet(e) {
   const action = (e && e.parameter && e.parameter.action) || 'playlist';
@@ -15,6 +16,7 @@ function getPlaylistPayload_() {
   const playlistSheet = spreadsheet.getSheetByName(PLAYLIST_SHEET);
   const configSheet = spreadsheet.getSheetByName(CONFIG_SHEET);
   const noticesSheet = spreadsheet.getSheetByName(NOTICES_SHEET);
+  const sponsorsSheet = spreadsheet.getSheetByName(SPONSORS_SHEET);
   if (!playlistSheet) throw new Error('Aba Playlist não encontrada.');
 
   const rows = playlistSheet.getDataRange().getDisplayValues();
@@ -51,6 +53,7 @@ function getPlaylistPayload_() {
     refreshSeconds: Number(config.intervalo_atualizacao_segundos || 60),
     crossfadeSeconds: Number(config.crossfade_segundos || 6),
     notices: readNotices_(noticesSheet),
+    sponsors: readSponsors_(sponsorsSheet),
     visitsTotal: countVisits_(),
     updatedAt: new Date().toISOString()
   });
@@ -69,6 +72,34 @@ function readNotices_(sheet) {
     text: String(row[textCol] || '').trim(),
     active: /^(sim|s|yes|true|1)$/i.test(String(row[activeCol] || '').trim())
   })).filter(item => item.text && item.active).sort((a, b) => a.order - b.order).map(item => ({ order: item.order, text: item.text }));
+}
+
+function readSponsors_(sheet) {
+  if (!sheet) return [];
+  const rows = sheet.getDataRange().getDisplayValues();
+  if (rows.length < 2) return [];
+  const headers = rows.shift().map(normalize_);
+  const col = name => headers.indexOf(normalize_(name));
+  const orderCol = col('ordem');
+  const nameCol = col('nome');
+  const imageCol = col('imagem_url');
+  const descriptionCol = col('descricao');
+  const purchaseCol = col('link_compra');
+  const activeCol = col('ativo');
+  return rows.map(row => ({
+    order: Number(row[orderCol] || 0),
+    name: String(row[nameCol] || '').trim(),
+    imageUrl: String(row[imageCol] || '').trim(),
+    description: String(row[descriptionCol] || '').trim(),
+    purchaseUrl: String(row[purchaseCol] || '').trim(),
+    active: /^(sim|s|yes|true|1)$/i.test(String(row[activeCol] || '').trim())
+  })).filter(item => item.name && item.imageUrl && item.purchaseUrl && item.active).sort((a, b) => a.order - b.order).map(item => ({
+    order: item.order,
+    name: item.name,
+    imageUrl: item.imageUrl,
+    description: item.description,
+    purchaseUrl: item.purchaseUrl
+  }));
 }
 
 function registerVisit_(params) {

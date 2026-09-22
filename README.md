@@ -32,6 +32,8 @@ A célula `Config!B2` controla a sequência manual, por exemplo `101,102,103`. O
 
 A aba `Avisos` usa as colunas `ordem`, `texto` e `ativo`. O Apps Script retorna os avisos ativos ordenados, e o site alterna os textos a cada 10 segundos com fade-out e fade-in de 500 ms. Se não houver avisos ativos na planilha, o arquivo local `avisos.txt` é usado como fallback.
 
+A aba `Patrocinio` usa `ordem`, `nome`, `imagem_url`, `descricao`, `link_compra` e `ativo`. Os produtos ativos são exibidos em dois cards por linha, com imagem e informação lado a lado, formando quatro colunas visuais no desktop. A seção fica fechada por padrão e é aberta pelo botão `Ver mais`. Os links usam `rel="sponsored nofollow noopener"`.
+
 ## Publicação
 
 No GitHub, habilite **Settings → Pages → Deploy from a branch → main → / (root)**. Após a publicação, a página ficará disponível na URL do GitHub Pages do repositório.
