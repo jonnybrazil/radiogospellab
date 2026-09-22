@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title>RADIOGOSPELLAB</title>
+  <desc>Ícone minimalista de um rádio em preto e branco</desc>
+  <rect width="64" height="64" fill="#fff"/>
+  <g fill="none" stroke="#111" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M27 17V11l22-5" stroke-width="4"/>
+    <rect x="8" y="17" width="48" height="34" rx="5" stroke-width="4"/>
+    <circle cx="23" cy="34" r="9" stroke-width="4"/>
+    <path d="M39 28h10M39 34h10M39 40h10" stroke-width="4"/>
+  </g>
+</svg>
