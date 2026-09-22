@@ -247,7 +247,7 @@
     setGain(nextPlayer, effectiveVolume() > 0 ? 1 : 0, immediate ? .01 : crossfadeSeconds);
     if (!immediate) setGain(active, 0, crossfadeSeconds);
     const oldPlayer = active; active = nextPlayer; currentTrack = track; currentIndex = (index + 1) % playlist.length;
-    prepareNext(); updateMetadata(track); setText('current-title', track.title); $('radio-toggle').setAttribute('aria-pressed', 'true'); $('radio-toggle').setAttribute('aria-label', `Pausar ${track.title}`); $('radio-icon').textContent = '⏸'; $('live-dot').classList.add('is-live'); setText('live-label', 'Ao vivo');
+    prepareNext(); updateMetadata(track); setText('current-title', track.title); $('radio-toggle').setAttribute('aria-pressed', 'true'); $('radio-toggle').setAttribute('aria-label', `Pausar ${track.title}`); setRadioIcon(true); $('live-dot').classList.add('is-live');
     if (!immediate) window.setTimeout(() => { audio[oldPlayer].pause(); audio[oldPlayer].removeAttribute('src'); }, crossfadeSeconds * 1000 + 250);
   }
 
@@ -268,13 +268,15 @@
     if (remaining <= crossfadeSeconds + .15 && !transitioning) startNextTrack();
   }
 
-  function stopRadio() { playing = false; audio.forEach((element, index) => { element.pause(); if (gain[index]) setGain(index, 0, .1); }); $('radio-icon').textContent = '▶'; $('live-dot').classList.remove('is-live'); setText('live-label', 'Pausado'); $('radio-toggle').setAttribute('aria-pressed', 'false'); $('radio-toggle').setAttribute('aria-label', `Continuar ${currentTrack?.title || 'rádio'}`); }
+  function setRadioIcon(paused) { $('radio-icon').innerHTML = paused ? '<span class="pause-glyph"></span>' : '<span class="play-glyph"></span>'; }
+
+  function stopRadio() { playing = false; audio.forEach((element, index) => { element.pause(); if (gain[index]) setGain(index, 0, .1); }); setRadioIcon(false); $('live-dot').classList.remove('is-live'); $('radio-toggle').setAttribute('aria-pressed', 'false'); $('radio-toggle').setAttribute('aria-label', `Continuar ${currentTrack?.title || 'rádio'}`); }
 
   async function toggleRadio() {
     if (playing) { stopRadio(); return; }
     try { await loadPlaylist(); } catch (_) { showPlayerMessage('Não foi possível carregar a playlist.'); return; }
     ensureAudioGraph(); if (audioContext.state === 'suspended') await audioContext.resume(); playing = true;
-    if (currentTrack && audio[active].src) { await audio[active].play(); setGain(active, effectiveVolume(), .1); $('radio-icon').textContent = '⏸'; $('live-dot').classList.add('is-live'); setText('live-label', 'Ao vivo'); $('radio-toggle').setAttribute('aria-label', `Pausar ${currentTrack.title}`); }
+    if (currentTrack && audio[active].src) { await audio[active].play(); setGain(active, effectiveVolume(), .1); setRadioIcon(true); $('live-dot').classList.add('is-live'); $('radio-toggle').setAttribute('aria-label', `Pausar ${currentTrack.title}`); }
     else await startNextTrack(true);
   }
 

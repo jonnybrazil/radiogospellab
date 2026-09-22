@@ -33,7 +33,10 @@ h2 { margin: 0 0 8px; font: 700 2.15rem/1 "Amatic SC", cursive; letter-spacing: 
 .radio-toggle { display: inline-flex; align-items: center; gap: 10px; margin: 10px 0 4px; padding: 0; border: 0; background: transparent; cursor: pointer; font-size: 14px; letter-spacing: .5px; text-transform: uppercase; }
 .radio-toggle:hover, .radio-toggle:focus-visible { color: var(--accent); }
 .radio-toggle:focus-visible, .text-button:focus-visible, .more-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-#radio-icon { min-width: 16px; font-size: 16px; line-height: 1; }
+.radio-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 18px; color: var(--ink); }
+.play-glyph { display: block; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-left: 12px solid currentColor; }
+.pause-glyph { display: inline-flex; gap: 3px; }
+.pause-glyph::before, .pause-glyph::after { content: ""; display: block; width: 4px; height: 15px; background: currentColor; border-radius: 1px; }
 .radio-toggle strong { font-weight: 700; text-transform: none; }
 .text-button, .more-button { border: 0; background: transparent; padding: 0; cursor: pointer; color: var(--muted); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
 .text-button:hover, .more-button:hover { color: var(--ink); }
