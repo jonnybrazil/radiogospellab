@@ -38,6 +38,8 @@ A home usa o título `RADIOGOSPELLAB`, um ícone de olho para o contador, indica
 
 O controle de página fica em `Config!B5`, na linha `modo_site`. Use `normal` para a rádio e `construcao` para redirecionar automaticamente a home à página Em Construção. A página Em Construção retorna à home quando o valor voltar para `normal`.
 
+A Mensagem do Dia é carregada do Google Docs configurado no Apps Script. O documento pode ser editado sem alterar o GitHub; se a leitura do documento falhar ou estiver vazia, `mensagem.txt` é usado como fallback.
+
 ## Publicação
 
 No GitHub, habilite **Settings → Pages → Deploy from a branch → main → / (root)**. Após a publicação, a página ficará disponível na URL do GitHub Pages do repositório.

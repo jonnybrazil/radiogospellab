@@ -4,6 +4,7 @@ const CONFIG_SHEET = 'Config';
 const VISITS_SHEET = 'Visitas';
 const NOTICES_SHEET = 'Avisos';
 const SPONSORS_SHEET = 'Patrocinio';
+const MESSAGE_DOCUMENT_ID = '1g_BH04OePllwQZkmlxRzcMAtzBYsKSRiZ-J68i3CWuI';
 
 function doGet(e) {
   const action = (e && e.parameter && e.parameter.action) || 'playlist';
@@ -53,11 +54,20 @@ function getPlaylistPayload_() {
     refreshSeconds: Number(config.intervalo_atualizacao_segundos || 60),
     crossfadeSeconds: Number(config.crossfade_segundos || 6),
     siteMode: normalize_(config.modo_site || 'normal') === 'construcao' ? 'construcao' : 'normal',
+    messageOfTheDay: readMessageOfTheDay_(),
     notices: readNotices_(noticesSheet),
     sponsors: readSponsors_(sponsorsSheet),
     visitsTotal: countVisits_(),
     updatedAt: new Date().toISOString()
   });
+}
+
+function readMessageOfTheDay_() {
+  try {
+    return DocumentApp.openById(MESSAGE_DOCUMENT_ID).getBody().getText().trim();
+  } catch (error) {
+    return '';
+  }
 }
 
 function readNotices_(sheet) {

@@ -33,6 +33,7 @@
   let noticeTimer = null;
   let noticeIndex = 0;
   let sponsorsLoaded = false;
+  let messageLoaded = false;
 
   const setText = (id, value) => { const node = $(id); if (node) node.textContent = value; };
   const cacheBust = (url) => `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
@@ -82,6 +83,7 @@
     }
     refreshMs = Math.max(15_000, Number(payload.refreshSeconds || 60) * 1000);
     crossfadeSeconds = Math.max(1, Number(payload.crossfadeSeconds || DEFAULT_CROSSFADE_SECONDS));
+    applyRemoteMessage(payload.messageOfTheDay);
     applyRemoteNotices(payload.notices);
     applyRemoteSponsors(payload.sponsors);
     return payload.playlist.map(track => ({ title: track.title || track.path, url: absoluteAudioUrl(track.path), number: track.number }));
@@ -135,6 +137,15 @@
       if (html) node.innerHTML = text;
       else node.innerHTML = text.split(/\r?\n/).filter(line => line.trim() && !line.trim().startsWith('#')).map(line => `<p>${escapeHtml(line.trim())}</p>`).join('') || '<p>Conteúdo em atualização.</p>';
     } catch (_) { setText(id, 'Conteúdo em atualização.'); }
+  }
+
+  function applyRemoteMessage(text) {
+    const value = String(text || '').trim();
+    const node = $('message-content');
+    if (!value || !node) return false;
+    messageLoaded = true;
+    node.innerHTML = value.split(/\r?\n/).filter(line => line.trim()).map(line => `<p>${escapeHtml(line.trim())}</p>`).join('');
+    return true;
   }
 
   function applyRemoteNotices(items) {
@@ -280,8 +291,9 @@
 
   async function init() {
     setupControls(); setupServiceWorker(); setText('current-year', new Date().getFullYear());
-    await Promise.all([registerVisit(), loadContent('message-content', CONTENT.message)]);
+    await Promise.all([registerVisit()]);
     try { await loadPlaylist(); } catch (_) { setText('queue-status', 'Playlist em configuração'); schedulePlaylistRefresh(); }
+    if (!messageLoaded) await loadContent('message-content', CONTENT.message);
     if (!noticesLoaded) await loadContent('notices-content', CONTENT.notices);
     if (!sponsorsLoaded) await loadContent('sponsors-grid', CONTENT.sponsors, true);
     window.addEventListener('pagehide', () => { if (refreshTimer) clearTimeout(refreshTimer); });
