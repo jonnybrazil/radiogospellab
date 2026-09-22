@@ -36,6 +36,8 @@ A aba `Patrocinio` usa `ordem`, `nome`, `imagem_url`, `descricao`, `link_compra`
 
 A home usa o título `RADIOGOSPELLAB`, um ícone de olho para o contador, indicador ao vivo vermelho e um player minimalista com apenas play/pausa e título da faixa. A página independente `em-construcao.html` usa o mesmo visual para períodos de manutenção ou preparação.
 
+O controle de página fica em `Config!B5`, na linha `modo_site`. Use `normal` para a rádio e `construcao` para redirecionar automaticamente a home à página Em Construção. A página Em Construção retorna à home quando o valor voltar para `normal`.
+
 ## Publicação
 
 No GitHub, habilite **Settings → Pages → Deploy from a branch → main → / (root)**. Após a publicação, a página ficará disponível na URL do GitHub Pages do repositório.

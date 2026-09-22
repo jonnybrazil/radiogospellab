@@ -52,6 +52,7 @@ function getPlaylistPayload_() {
     sequence: ordered.map(item => item.number),
     refreshSeconds: Number(config.intervalo_atualizacao_segundos || 60),
     crossfadeSeconds: Number(config.crossfade_segundos || 6),
+    siteMode: normalize_(config.modo_site || 'normal') === 'construcao' ? 'construcao' : 'normal',
     notices: readNotices_(noticesSheet),
     sponsors: readSponsors_(sponsorsSheet),
     visitsTotal: countVisits_(),

@@ -76,6 +76,10 @@
     if (!response.ok) throw new Error(`Programação indisponível (${response.status})`);
     const payload = await response.json();
     if (!Array.isArray(payload.playlist) || !payload.playlist.length) throw new Error('Programação vazia');
+    if (payload.siteMode === 'construcao' && !location.pathname.endsWith('/em-construcao.html')) {
+      location.replace('em-construcao.html');
+      return [];
+    }
     refreshMs = Math.max(15_000, Number(payload.refreshSeconds || 60) * 1000);
     crossfadeSeconds = Math.max(1, Number(payload.crossfadeSeconds || DEFAULT_CROSSFADE_SECONDS));
     applyRemoteNotices(payload.notices);
