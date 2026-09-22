@@ -7,7 +7,7 @@ const NOTICES_SHEET = 'Avisos';
 function doGet(e) {
   const action = (e && e.parameter && e.parameter.action) || 'playlist';
   if (action === 'visit') return registerVisit_(e.parameter || {});
-  return json_(getPlaylistPayload_());
+  return getPlaylistPayload_();
 }
 
 function getPlaylistPayload_() {

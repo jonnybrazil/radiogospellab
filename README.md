@@ -18,7 +18,7 @@ Home page de uma pseudo-rádio ao vivo para a Igreja Batista Luz, hospedável no
 
 ## Google Sheets
 
-A programação e o contador de visitas usam um Google Apps Script publicado como Web App. A URL do endpoint está configurada no início de `app.js`. O site consulta a programação conforme o intervalo definido na aba `Config`, sem recarregar a página, e registra cada carregamento da home na aba `Visitas`.
+A programação, os avisos e o contador de visitas usam um Google Apps Script publicado como Web App. A URL do endpoint está configurada no início de `app.js`. O site consulta a programação conforme o intervalo definido na aba `Config`, sem recarregar a página, e registra cada carregamento da home na aba `Visitas`.
 
 A aba `Playlist` usa estas colunas:
 
