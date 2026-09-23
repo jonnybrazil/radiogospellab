@@ -285,8 +285,8 @@
     const toggle = $('radio-toggle');
     toggle.classList.toggle('is-loading', loading);
     if (loading) {
-      setText('current-title', 'Carregando..');
-      toggle.setAttribute('aria-label', 'Carregando');
+      setText('current-title', 'Sintonizando...');
+      toggle.setAttribute('aria-label', 'Sintonizando');
     }
   }
 
