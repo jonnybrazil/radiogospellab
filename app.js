@@ -34,6 +34,7 @@
   let noticeIndex = 0;
   let sponsorsLoaded = false;
   let messageLoaded = false;
+  let initialProgramStart = true;
 
   const setText = (id, value) => { const node = $(id); if (node) node.textContent = value; };
   const cacheBust = (url) => `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
@@ -243,6 +244,16 @@
     const element = audio[nextPlayer];
     element.src = track.url; element.load();
     try { await element.play(); } catch (_) { showPlayerMessage('Toque em Iniciar rádio para liberar o áudio.'); return; }
+    if (initialProgramStart) {
+      const seekRandomPosition = () => {
+        if (Number.isFinite(element.duration) && element.duration > 20) {
+          element.currentTime = Math.random() * Math.max(0, element.duration - 15);
+        }
+      };
+      if (Number.isFinite(element.duration)) seekRandomPosition();
+      else element.addEventListener('loadedmetadata', seekRandomPosition, { once: true });
+      initialProgramStart = false;
+    }
     setGain(nextPlayer, 0, 0);
     setGain(nextPlayer, effectiveVolume() > 0 ? 1 : 0, immediate ? .01 : crossfadeSeconds);
     if (!immediate) setGain(active, 0, crossfadeSeconds);
@@ -277,7 +288,13 @@
     try { await loadPlaylist(); } catch (_) { showPlayerMessage('Não foi possível carregar a playlist.'); return; }
     ensureAudioGraph(); if (audioContext.state === 'suspended') await audioContext.resume(); playing = true;
     if (currentTrack && audio[active].src) { await audio[active].play(); setGain(active, effectiveVolume(), .1); setRadioIcon(true); $('live-dot').classList.add('is-live'); $('radio-toggle').setAttribute('aria-label', `Pausar ${currentTrack.title}`); }
-    else await startNextTrack(true);
+    else {
+      currentIndex = Math.floor(Math.random() * playlist.length);
+      nextTrack = null;
+      setText('current-title', 'Sintonizando...');
+      $('radio-toggle').setAttribute('aria-label', 'Sintonizando');
+      await startNextTrack(true);
+    }
   }
 
   function showPlayerMessage(message) { setText('player-message', message); window.setTimeout(() => { if ($('player-message').textContent === message) setText('player-message', ''); }, 6000); }
