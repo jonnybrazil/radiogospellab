@@ -281,16 +281,27 @@
 
   function setRadioIcon(paused) { $('radio-icon').innerHTML = paused ? '<span class="pause-glyph"></span>' : '<span class="play-glyph"></span>'; }
 
+  function setLoadingState(loading) {
+    const toggle = $('radio-toggle');
+    toggle.classList.toggle('is-loading', loading);
+    if (loading) {
+      setText('current-title', 'Carregando..');
+      toggle.setAttribute('aria-label', 'Carregando');
+    }
+  }
+
   function stopRadio() { playing = false; audio.forEach((element, index) => { element.pause(); if (gain[index]) setGain(index, 0, .1); }); setRadioIcon(false); $('live-dot').classList.remove('is-live'); $('radio-toggle').setAttribute('aria-pressed', 'false'); $('radio-toggle').setAttribute('aria-label', `Continuar ${currentTrack?.title || 'rádio'}`); }
 
   async function toggleRadio() {
     if (playing) { stopRadio(); return; }
-    try { await loadPlaylist(); } catch (_) { showPlayerMessage('Não foi possível carregar a playlist.'); return; }
+    setLoadingState(true);
+    try { await loadPlaylist(); } catch (_) { setLoadingState(false); showPlayerMessage('Não foi possível carregar a playlist.'); return; }
     ensureAudioGraph(); if (audioContext.state === 'suspended') await audioContext.resume(); playing = true;
-    if (currentTrack && audio[active].src) { await audio[active].play(); setGain(active, effectiveVolume(), .1); setRadioIcon(true); $('live-dot').classList.add('is-live'); $('radio-toggle').setAttribute('aria-label', `Pausar ${currentTrack.title}`); }
+    if (currentTrack && audio[active].src) { await audio[active].play(); setLoadingState(false); setGain(active, effectiveVolume(), .1); setRadioIcon(true); $('live-dot').classList.add('is-live'); $('radio-toggle').setAttribute('aria-label', `Pausar ${currentTrack.title}`); }
     else {
       currentIndex = Math.floor(Math.random() * playlist.length);
       nextTrack = null;
+      setLoadingState(false);
       setText('current-title', 'Sintonizando...');
       $('radio-toggle').setAttribute('aria-label', 'Sintonizando');
       await startNextTrack(true);
