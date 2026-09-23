@@ -107,6 +107,7 @@
     const stillCurrent = oldUrl ? playlist.findIndex(t => t.url === oldUrl) : -1;
     if (stillCurrent >= 0) currentIndex = (stillCurrent + 1) % playlist.length;
     else if (currentIndex >= playlist.length) currentIndex = 0;
+    nextTrack = currentTrack ? (playlist[currentIndex] || null) : null;
     updateNextLabel();
     setText('queue-status', remote ? 'Google Sheets' : `Fila local · ${playlist.length} faixas`);
     schedulePlaylistRefresh();
@@ -294,18 +295,28 @@
 
   async function toggleRadio() {
     if (playing) { stopRadio(); return; }
+    if (currentTrack && audio[active].src) {
+      ensureAudioGraph();
+      if (audioContext.state === 'suspended') await audioContext.resume();
+      try { await audio[active].play(); } catch (_) { showPlayerMessage('Toque em Iniciar rádio para liberar o áudio.'); return; }
+      playing = true;
+      setText('current-title', currentTrack.title);
+      setGain(active, effectiveVolume(), .1);
+      setRadioIcon(true);
+      $('live-dot').classList.add('is-live');
+      $('radio-toggle').setAttribute('aria-pressed', 'true');
+      $('radio-toggle').setAttribute('aria-label', `Pausar ${currentTrack.title}`);
+      return;
+    }
     setLoadingState(true);
     try { await loadPlaylist(); } catch (_) { setLoadingState(false); showPlayerMessage('Não foi possível carregar a playlist.'); return; }
     ensureAudioGraph(); if (audioContext.state === 'suspended') await audioContext.resume(); playing = true;
-    if (currentTrack && audio[active].src) { await audio[active].play(); setLoadingState(false); setGain(active, effectiveVolume(), .1); setRadioIcon(true); $('live-dot').classList.add('is-live'); $('radio-toggle').setAttribute('aria-label', `Pausar ${currentTrack.title}`); }
-    else {
-      currentIndex = Math.floor(Math.random() * playlist.length);
-      nextTrack = null;
-      setLoadingState(false);
-      setText('current-title', 'Sintonizando...');
-      $('radio-toggle').setAttribute('aria-label', 'Sintonizando');
-      await startNextTrack(true);
-    }
+    currentIndex = Math.floor(Math.random() * playlist.length);
+    nextTrack = null;
+    setLoadingState(false);
+    setText('current-title', 'Sintonizando...');
+    $('radio-toggle').setAttribute('aria-label', 'Sintonizando');
+    await startNextTrack(true);
   }
 
   function showPlayerMessage(message) { setText('player-message', message); window.setTimeout(() => { if ($('player-message').textContent === message) setText('player-message', ''); }, 6000); }
