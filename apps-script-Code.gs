@@ -48,12 +48,17 @@ function getPlaylistPayload_() {
     ordered = items.sort((a, b) => a.order - b.order);
   }
 
+  const maintenanceValue = String(config.em_manutencao || '').trim();
+  const maintenanceEnabled = maintenanceValue
+    ? /^(sim|s|yes|true|1)$/i.test(maintenanceValue)
+    : normalize_(config.modo_site || 'normal') === 'construcao';
+
   return json_({
     playlist: ordered.map(item => ({ number: item.number, title: item.title, path: item.path })),
     sequence: ordered.map(item => item.number),
     refreshSeconds: Number(config.intervalo_atualizacao_segundos || 60),
     crossfadeSeconds: Number(config.crossfade_segundos || 6),
-    siteMode: normalize_(config.modo_site || 'normal') === 'construcao' ? 'construcao' : 'normal',
+    siteMode: maintenanceEnabled ? 'construcao' : 'normal',
     messageOfTheDay: readMessageOfTheDay_(),
     notices: readNotices_(noticesSheet),
     sponsors: readSponsors_(sponsorsSheet),
