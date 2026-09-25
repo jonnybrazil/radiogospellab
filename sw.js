@@ -1,4 +1,4 @@
-const CACHE_NAME = 'radio-gospel-lab-v3';
+const CACHE_NAME = 'radio-gospel-lab-v4';
 const APP_SHELL = ['.', './index.html', './styles.css', './app.js', './manifest.json'];
 
 self.addEventListener('install', event => {
