@@ -1,7 +1,7 @@
 {
-  "name": "RADIOGOSPELLAB",
-  "short_name": "RADIOGOSPELLAB",
-  "description": "Pseudo-rádio ao vivo da Igreja Batista Luz.",
+  "name": "GOSPELLAB — Rádio Gospel Lab",
+  "short_name": "GOSPELLAB",
+  "description": "GOSPELLAB — pseudo-rádio ao vivo da Igreja Batista Luz.",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
