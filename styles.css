@@ -30,7 +30,7 @@ h2 { margin: 0 0 8px; font: 700 2.15rem/1 "Amatic SC", cursive; letter-spacing: 
 .live-status { display: flex; align-items: center; gap: 7px; margin-top: 14px; color: var(--muted); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #c7c7c7; display: inline-block; }
 .live-dot.is-live { background: #c62828; box-shadow: 0 0 0 3px rgba(198,40,40,.12); }
-.radio-toggle { display: inline-flex; align-items: center; gap: 10px; margin: 10px 0 4px; padding: 0; border: 0; background: transparent; cursor: pointer; font-size: 14px; letter-spacing: .5px; text-transform: uppercase; }
+.radio-toggle { display: flex; align-items: center; gap: 10px; width: 100%; margin: 10px 0 4px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 9px; background: transparent; cursor: pointer; font-size: 14px; letter-spacing: .5px; text-align: left; text-transform: uppercase; }
 .radio-toggle:hover, .radio-toggle:focus-visible { color: var(--accent); }
 .radio-toggle.is-loading { color: #c62828; }
 .radio-toggle:focus-visible, .text-button:focus-visible, .more-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
