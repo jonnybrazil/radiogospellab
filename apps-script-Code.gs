@@ -164,7 +164,9 @@ function writeDailySummary_(params) {
 
   const timeZone = spreadsheet.getSpreadsheetTimeZone() || Session.getScriptTimeZone();
   const targetDate = String(params.data || Utilities.formatDate(new Date(), timeZone, 'yyyy-MM-dd')).trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) throw new Error('Data inválida. Use AAAA-MM-DD.');
   const dayStart = new Date(`${targetDate}T00:00:00`);
+  if (Number.isNaN(dayStart.getTime())) throw new Error('Data inválida.');
   const nextDate = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
   const eventRows = eventsSheet ? eventsSheet.getDataRange().getValues().slice(1) : [];
   const visitRows = visitsSheet ? visitsSheet.getDataRange().getValues().slice(1) : [];
