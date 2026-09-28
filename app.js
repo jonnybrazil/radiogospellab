@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const PROGRAMMING_ENDPOINT = "https://script.google.com/macros/s/AKfycbyQjq9JuiKewimQYoEsdpbHv0cCP5PFfTT-9kEBWeV_Ub5UTMKaOHlpXwlUJSugFKJ1Hg/exec";
+  const PROGRAMMING_ENDPOINT = "https://script.google.com/macros/s/AKfycbyJNGrtrKzd_cGDmQ66vv2d_F-PrAkzWkPGU1O834KQWbatP3DjgkatliK1s00P5kcs-A/exec";
   const LOCAL_PLAYLIST_SOURCE = "playlist.csv";
   const CONTENT = {
     message: "mensagem.txt",
@@ -35,10 +35,23 @@
   let sponsorsLoaded = false;
   let messageLoaded = false;
   let initialProgramStart = true;
+  const analyticsSession = sessionStorage.getItem('radiogospellab-session') || (window.crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  let analyticsTimer = null;
 
   const setText = (id, value) => { const node = $(id); if (node) node.textContent = value; };
   const cacheBust = (url) => `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
   const absoluteAudioUrl = (path) => { try { return new URL(path, document.baseURI).href; } catch (_) { return path; } };
+  function sendAnalyticsEvent(event) {
+    const url = `${PROGRAMMING_ENDPOINT}?action=event&event=${encodeURIComponent(event)}&session=${encodeURIComponent(analyticsSession)}`;
+    fetch(url, { cache: 'no-store', keepalive: true }).catch(() => {});
+  }
+  function startAnalyticsHeartbeat() {
+    if (analyticsTimer) return;
+    sendAnalyticsEvent('heartbeat');
+    analyticsTimer = window.setInterval(() => { if (playing) sendAnalyticsEvent('heartbeat'); }, 60_000);
+  }
+  function stopAnalyticsHeartbeat() { if (analyticsTimer) { clearInterval(analyticsTimer); analyticsTimer = null; } }
+  sessionStorage.setItem('radiogospellab-session', analyticsSession);
 
   function parseCSV(text) {
     const rows = [];
@@ -291,7 +304,7 @@
     }
   }
 
-  function stopRadio() { playing = false; audio.forEach((element, index) => { element.pause(); if (gain[index]) setGain(index, 0, .1); }); setRadioIcon(false); $('live-dot').classList.remove('is-live'); $('radio-toggle').setAttribute('aria-pressed', 'false'); $('radio-toggle').setAttribute('aria-label', `Continuar ${currentTrack?.title || 'rádio'}`); }
+  function stopRadio() { const wasPlaying = playing; playing = false; stopAnalyticsHeartbeat(); if (wasPlaying) sendAnalyticsEvent('radio_pause'); audio.forEach((element, index) => { element.pause(); if (gain[index]) setGain(index, 0, .1); }); setRadioIcon(false); $('live-dot').classList.remove('is-live'); $('radio-toggle').setAttribute('aria-pressed', 'false'); $('radio-toggle').setAttribute('aria-label', `Continuar ${currentTrack?.title || 'rádio'}`); }
 
   async function toggleRadio() {
     if (playing) { stopRadio(); return; }
@@ -306,6 +319,8 @@
       $('live-dot').classList.add('is-live');
       $('radio-toggle').setAttribute('aria-pressed', 'true');
       $('radio-toggle').setAttribute('aria-label', `Pausar ${currentTrack.title}`);
+      sendAnalyticsEvent('radio_resume');
+      startAnalyticsHeartbeat();
       return;
     }
     setLoadingState(true);
@@ -317,6 +332,7 @@
     setText('current-title', 'Sintonizando...');
     $('radio-toggle').setAttribute('aria-label', 'Sintonizando');
     await startNextTrack(true);
+    if (currentTrack) { sendAnalyticsEvent('radio_start'); startAnalyticsHeartbeat(); }
   }
 
   function showPlayerMessage(message) { setText('player-message', message); window.setTimeout(() => { if ($('player-message').textContent === message) setText('player-message', ''); }, 6000); }
@@ -337,7 +353,7 @@
     if (!messageLoaded) await loadContent('message-content', CONTENT.message);
     if (!noticesLoaded) await loadContent('notices-content', CONTENT.notices);
     if (!sponsorsLoaded) await loadContent('sponsors-grid', CONTENT.sponsors, true);
-    window.addEventListener('pagehide', () => { if (refreshTimer) clearTimeout(refreshTimer); });
+    window.addEventListener('pagehide', () => { if (refreshTimer) clearTimeout(refreshTimer); if (playing) sendAnalyticsEvent('radio_pause'); });
   }
   document.addEventListener('DOMContentLoaded', init);
 })();
