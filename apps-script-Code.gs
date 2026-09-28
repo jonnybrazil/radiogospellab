@@ -200,6 +200,14 @@ function installDailySummaryTrigger_() {
   ScriptApp.newTrigger('writeDailySummary_').timeBased().everyDays(1).atHour(23).nearMinute(59).create();
 }
 
+function gerarResumoAgora() {
+  return writeDailySummary_({});
+}
+
+function instalarMedicaoDiaria() {
+  installDailySummaryTrigger_();
+}
+
 function readConfig_(sheet) {
   if (!sheet) return {};
   const result = {};
