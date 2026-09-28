@@ -210,6 +210,12 @@ function instalarMedicaoDiaria() {
   installDailySummaryTrigger_();
 }
 
+function autorizarAcessos() {
+  SpreadsheetApp.openById(SPREADSHEET_ID).getName();
+  DocumentApp.openById(MESSAGE_DOCUMENT_ID).getName();
+  return 'Acessos autorizados.';
+}
+
 function readConfig_(sheet) {
   if (!sheet) return {};
   const result = {};
