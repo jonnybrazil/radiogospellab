@@ -88,7 +88,7 @@ footer p { margin: 2px 0; }
   .pause-glyph::before, .pause-glyph::after { width: 11px; height: 44px; }
   .radio-toggle strong { left: 118px; padding: 10px 18px; font-size: 12px; max-width: calc(100vw - 155px); overflow: hidden; text-overflow: ellipsis; }
   .quick-nav button { min-height: 62px; padding: 8px 4px; font-size: 9px; }
-  .section { padding: 0 18px; margin-top: 30px; }
+  .section { padding: 0; margin-top: 30px; }
   .programming { padding: 0; margin-top: 0; }
   .sponsors-grid { grid-template-columns: 1fr; gap: 18px; }
 }
