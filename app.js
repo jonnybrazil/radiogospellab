@@ -337,8 +337,25 @@
   }
 
   function showPlayerMessage(message) { setText('player-message', message); window.setTimeout(() => { if ($('player-message').textContent === message) setText('player-message', ''); }, 6000); }
+  async function submitGuestbook(form) {
+    const status = $('guestbook-status');
+    const button = form.querySelector('button[type="submit"]');
+    const data = new FormData(form);
+    if (String(data.get('website') || '').trim()) return;
+    status.className = 'guestbook-status'; status.textContent = 'Enviando...'; button.disabled = true;
+    try {
+      const body = new URLSearchParams({ action: 'guestbook', name: data.get('name'), city: data.get('city'), state: data.get('state'), message: data.get('message'), website: '', session: analyticsSession });
+      const response = await fetch(PROGRAMMING_ENDPOINT, { method: 'POST', body, cache: 'no-store' });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) throw new Error(payload.error || 'Não foi possível enviar a mensagem.');
+      form.reset(); status.className = 'guestbook-status is-success'; status.textContent = 'Mensagem recebida. Obrigado pela participação!';
+    } catch (_) {
+      status.className = 'guestbook-status is-error'; status.textContent = 'Não foi possível enviar agora. Tente novamente em instantes.';
+    } finally { button.disabled = false; }
+  }
   function setupControls() {
     $('radio-toggle').addEventListener('click', toggleRadio);
+    $('guestbook-form')?.addEventListener('submit', event => { event.preventDefault(); submitGuestbook(event.currentTarget); });
     document.querySelectorAll('.quick-nav button[data-panel]').forEach(button => {
       button.addEventListener('click', () => toggleExpandable(button.dataset.panel, button));
     });

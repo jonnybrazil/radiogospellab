@@ -74,6 +74,19 @@ h2 { margin: 0 0 8px; font: 400 2rem/1 Ebrima, "Segoe UI", Arial, sans-serif; le
 .notice-box p { margin: 0 0 10px; }
 .sponsors a { color: inherit; }
 .contact-section p { margin: 14px 0 0; color: var(--muted); }
+.guestbook-form { padding: 18px 0 4px; }
+.guestbook-fields { display: grid; grid-template-columns: 1.3fr 1.3fr .7fr; gap: 14px; }
+.guestbook-form label { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 10px; letter-spacing: .8px; text-transform: uppercase; }
+.guestbook-form input:not([type="hidden"]), .guestbook-form select, .guestbook-form textarea { width: 100%; border: 1px solid var(--line); border-radius: 0; padding: 10px 11px; color: var(--ink); background: #fff; font: inherit; font-size: 13px; letter-spacing: 0; text-transform: none; outline: none; }
+.guestbook-form textarea { min-height: 110px; margin-top: 14px; resize: vertical; }
+.guestbook-form input:focus, .guestbook-form select:focus, .guestbook-form textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(178,23,97,.12); }
+.guestbook-form button { margin-top: 14px; border: 1px solid var(--ink); border-radius: 0; padding: 10px 18px; color: var(--ink); background: transparent; cursor: pointer; font-size: 11px; letter-spacing: .8px; text-transform: uppercase; }
+.guestbook-form button:hover, .guestbook-form button:focus-visible { color: #fff; background: var(--ink); }
+.guestbook-form button:disabled { opacity: .55; cursor: wait; }
+.guestbook-status { min-height: 21px; margin: 12px 0 0 !important; color: var(--muted); font-size: 12px; letter-spacing: 0; text-transform: none; }
+.guestbook-status.is-success { color: #32734d; }
+.guestbook-status.is-error { color: #a1263d; }
+.guestbook-trap { position: absolute; left: -9999px; width: 1px !important; height: 1px; opacity: 0; }
 footer { margin-top: 54px; color: var(--muted); font-size: 9px; line-height: 1.35; text-align: center; letter-spacing: .4px; }
 footer p { margin: 2px 0; }
 @media (max-width: 700px) {
@@ -91,5 +104,6 @@ footer p { margin: 2px 0; }
   .section { padding: 0; margin-top: 30px; }
   .programming { padding: 0; margin-top: 0; }
   .sponsors-grid { grid-template-columns: 1fr; gap: 18px; }
+  .guestbook-fields { grid-template-columns: 1fr; gap: 12px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }

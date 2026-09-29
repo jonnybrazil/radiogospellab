@@ -4,6 +4,7 @@ const CONFIG_SHEET = 'Config';
 const VISITS_SHEET = 'Visitas';
 const NOTICES_SHEET = 'Avisos';
 const SPONSORS_SHEET = 'Patrocinio';
+const GUESTBOOK_SHEET = 'Livro de Visitas';
 const MESSAGE_DOCUMENT_ID = '1g_BH04OePllwQZkmlxRzcMAtzBYsKSRiZ-J68i3CWuI';
 
 function doGet(e) {
@@ -12,6 +13,14 @@ function doGet(e) {
   if (action === 'event') return registerAnalyticsEvent_(e.parameter || {});
   if (action === 'summary') return writeDailySummary_(e.parameter || {});
   return getPlaylistPayload_();
+}
+
+function doPost(e) {
+  try {
+    return registerGuestbook_(e && e.parameter ? e.parameter : {});
+  } catch (error) {
+    return json_({ ok: false, error: 'Não foi possível registrar a mensagem.' });
+  }
 }
 
 function getPlaylistPayload_() {
@@ -145,6 +154,47 @@ function registerAnalyticsEvent_(params) {
   const sheet = ensureEventsSheet_(spreadsheet);
   sheet.appendRow([new Date(), sessionId, event]);
   return json_({ ok: true });
+}
+
+function registerGuestbook_(params) {
+  const website = String(params.website || '').trim();
+  if (website) return json_({ ok: true });
+
+  const name = cleanGuestbookValue_(params.name, 80);
+  const city = cleanGuestbookValue_(params.city, 80);
+  const state = normalize_(params.state || '').toUpperCase();
+  const message = cleanGuestbookValue_(params.message, 500);
+  const allowedStates = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
+  if (!name || !city || !allowedStates.includes(state) || !message) return json_({ ok: false, error: 'Preencha todos os campos corretamente.' });
+
+  const session = cleanGuestbookValue_(params.session, 120) || 'anonymous';
+  const cache = CacheService.getScriptCache();
+  const rateKey = `guestbook-${session}`;
+  if (cache.get(rateKey)) return json_({ ok: false, error: 'Aguarde um instante antes de enviar outra mensagem.' });
+  cache.put(rateKey, '1', 30);
+
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ensureGuestbookSheet_(spreadsheet);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(5000);
+  try {
+    sheet.appendRow([new Date(), name, city, state, message, 'Pendente']);
+    SpreadsheetApp.flush();
+    return json_({ ok: true });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function ensureGuestbookSheet_(spreadsheet) {
+  let sheet = spreadsheet.getSheetByName(GUESTBOOK_SHEET);
+  if (!sheet) sheet = spreadsheet.insertSheet(GUESTBOOK_SHEET);
+  if (sheet.getLastRow() === 0) sheet.appendRow(['data_hora', 'nome', 'cidade', 'estado', 'mensagem', 'status']);
+  return sheet;
+}
+
+function cleanGuestbookValue_(value, maxLength) {
+  return String(value || '').replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, maxLength);
 }
 
 function ensureEventsSheet_(spreadsheet) {

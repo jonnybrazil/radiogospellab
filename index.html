@@ -54,7 +54,19 @@
     </section>
 
     <section class="section contact-section" aria-label="Contato">
-      <div id="contact-content" class="expandable-content is-collapsed"><p>Em breve, um espaço para deixar sua mensagem para a GOSPELLAB.</p></div>
+      <div id="contact-content" class="expandable-content is-collapsed">
+        <form id="guestbook-form" class="guestbook-form">
+          <div class="guestbook-fields">
+            <label>Nome<input name="name" type="text" maxlength="80" autocomplete="name" required></label>
+            <label>Cidade<input name="city" type="text" maxlength="80" autocomplete="address-level2" required></label>
+            <label>Estado<select name="state" autocomplete="address-level1" required><option value="">Selecione</option><option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option></select></label>
+          </div>
+          <label>Mensagem<textarea name="message" rows="5" maxlength="500" required></textarea></label>
+          <input class="guestbook-trap" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button type="submit">Enviar mensagem</button>
+          <p id="guestbook-status" class="guestbook-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
     </section>
 
     <footer>
@@ -65,6 +77,6 @@
 
   <audio id="audio-a" preload="metadata"></audio>
   <audio id="audio-b" preload="metadata"></audio>
-  <script src="app.js?v=20260929-2" defer></script>
+  <script src="app.js?v=20260929-3" defer></script>
 </body>
 </html>
