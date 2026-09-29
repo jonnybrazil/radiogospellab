@@ -345,7 +345,19 @@
     audio.forEach(element => { element.addEventListener('timeupdate', onTimeUpdate); element.addEventListener('ended', () => { if (element === audio[active] && playing) startNextTrack(); }); element.addEventListener('error', () => { if (element === audio[active]) showPlayerMessage('Não foi possível carregar esta faixa. Pulando para a próxima.'); }); });
   }
 
-  function toggleExpandable(contentId, trigger) { const content = $(contentId); if (!content) return; const open = content.classList.toggle('is-open'); if (trigger) trigger.setAttribute('aria-expanded', String(open)); if (open) window.setTimeout(() => content.closest('.section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80); }
+  function toggleExpandable(contentId, trigger) {
+    const content = $(contentId);
+    if (!content) return;
+    const open = !content.classList.contains('is-open');
+    document.querySelectorAll('.expandable-content.is-open').forEach(panel => {
+      if (panel === content) return;
+      panel.classList.remove('is-open');
+      document.querySelector(`.quick-nav button[data-panel="${panel.id}"]`)?.setAttribute('aria-expanded', 'false');
+    });
+    content.classList.toggle('is-open', open);
+    if (trigger) trigger.setAttribute('aria-expanded', String(open));
+    if (open) window.setTimeout(() => content.closest('.section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  }
   function setupServiceWorker() { if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {})); }
 
   async function init() {
