@@ -272,7 +272,7 @@
     setGain(nextPlayer, effectiveVolume() > 0 ? 1 : 0, immediate ? .01 : crossfadeSeconds);
     if (!immediate) setGain(active, 0, crossfadeSeconds);
     const oldPlayer = active; active = nextPlayer; currentTrack = track; currentIndex = (index + 1) % playlist.length;
-    prepareNext(); updateMetadata(track); setText('current-title', track.title); $('radio-toggle').setAttribute('aria-pressed', 'true'); $('radio-toggle').setAttribute('aria-label', `Pausar ${track.title}`); setRadioIcon(true); $('live-dot').classList.add('is-live');
+    prepareNext(); updateMetadata(track); setText('current-title', track.title); $('radio-toggle').classList.add('is-playing'); $('radio-toggle').setAttribute('aria-pressed', 'true'); $('radio-toggle').setAttribute('aria-label', `Pausar ${track.title}`); setRadioIcon(true); $('live-dot').classList.add('is-live');
     if (!immediate) window.setTimeout(() => { audio[oldPlayer].pause(); audio[oldPlayer].removeAttribute('src'); }, crossfadeSeconds * 1000 + 250);
   }
 
@@ -304,7 +304,7 @@
     }
   }
 
-  function stopRadio() { const wasPlaying = playing; playing = false; stopAnalyticsHeartbeat(); if (wasPlaying) sendAnalyticsEvent('radio_pause'); audio.forEach((element, index) => { element.pause(); if (gain[index]) setGain(index, 0, .1); }); setRadioIcon(false); $('live-dot').classList.remove('is-live'); $('radio-toggle').setAttribute('aria-pressed', 'false'); $('radio-toggle').setAttribute('aria-label', `Continuar ${currentTrack?.title || 'rádio'}`); }
+  function stopRadio() { const wasPlaying = playing; playing = false; stopAnalyticsHeartbeat(); if (wasPlaying) sendAnalyticsEvent('radio_pause'); audio.forEach((element, index) => { element.pause(); if (gain[index]) setGain(index, 0, .1); }); setRadioIcon(false); $('radio-toggle').classList.remove('is-playing'); $('live-dot').classList.remove('is-live'); $('radio-toggle').setAttribute('aria-pressed', 'false'); $('radio-toggle').setAttribute('aria-label', `Continuar ${currentTrack?.title || 'rádio'}`); }
 
   async function toggleRadio() {
     if (playing) { stopRadio(); return; }
@@ -316,6 +316,7 @@
       setText('current-title', currentTrack.title);
       setGain(active, effectiveVolume(), .1);
       setRadioIcon(true);
+      $('radio-toggle').classList.add('is-playing');
       $('live-dot').classList.add('is-live');
       $('radio-toggle').setAttribute('aria-pressed', 'true');
       $('radio-toggle').setAttribute('aria-label', `Pausar ${currentTrack.title}`);
