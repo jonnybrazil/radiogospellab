@@ -339,12 +339,13 @@
   function showPlayerMessage(message) { setText('player-message', message); window.setTimeout(() => { if ($('player-message').textContent === message) setText('player-message', ''); }, 6000); }
   function setupControls() {
     $('radio-toggle').addEventListener('click', toggleRadio);
-    $('message-toggle').addEventListener('click', () => toggleExpandable('message-content', 'message-toggle'));
-    $('sponsors-toggle').addEventListener('click', () => toggleExpandable('sponsors-content', 'sponsors-toggle'));
+    document.querySelectorAll('.quick-nav button[data-panel]').forEach(button => {
+      button.addEventListener('click', () => toggleExpandable(button.dataset.panel, button));
+    });
     audio.forEach(element => { element.addEventListener('timeupdate', onTimeUpdate); element.addEventListener('ended', () => { if (element === audio[active] && playing) startNextTrack(); }); element.addEventListener('error', () => { if (element === audio[active]) showPlayerMessage('Não foi possível carregar esta faixa. Pulando para a próxima.'); }); });
   }
 
-  function toggleExpandable(contentId, buttonId) { const content = $(contentId), button = $(buttonId); const open = content.classList.toggle('is-open'); button.textContent = open ? 'Ver menos' : 'Ver mais'; }
+  function toggleExpandable(contentId, trigger) { const content = $(contentId); if (!content) return; const open = content.classList.toggle('is-open'); if (trigger) trigger.setAttribute('aria-expanded', String(open)); if (open) window.setTimeout(() => content.closest('.section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80); }
   function setupServiceWorker() { if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {})); }
 
   async function init() {

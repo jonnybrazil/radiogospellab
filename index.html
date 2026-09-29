@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="styles.css?v=20260929-2">
+  <link rel="stylesheet" href="styles.css?v=20260929-3">
   <link rel="icon" href="favicon.jpg?v=20260924" type="image/jpeg">
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260924">
 </head>
@@ -34,32 +34,30 @@
     </section>
 
     <nav class="quick-nav" aria-label="Navegação da rádio">
-      <a href="#message-title">Mensagem do Dia</a>
-      <a href="#notices-title">Notícias</a>
-      <a href="#sponsors-title">Patrocínios</a>
-      <a href="#contact-title">Contato</a>
+      <button type="button" data-panel="message-content" aria-expanded="false">Mensagem do Dia</button>
+      <button type="button" data-panel="notices-content" aria-expanded="false">Notícias</button>
+      <button type="button" data-panel="sponsors-content" aria-expanded="false">Patrocínios</button>
+      <button type="button" data-panel="contact-content" aria-expanded="false">Contato</button>
     </nav>
 
     <section class="section" aria-labelledby="message-title">
       <div class="section-heading"><h2 id="message-title">Mensagem do Dia</h2></div>
       <div id="message-content" class="expandable-content is-collapsed"><p>Carregando mensagem...</p></div>
-      <button class="more-button" id="message-toggle" type="button">Ver mais</button>
     </section>
 
     <section class="section" aria-labelledby="notices-title">
       <div class="section-heading"><h2 id="notices-title">Avisos</h2></div>
-      <div id="notices-content" class="notice-box"><p>Carregando avisos...</p></div>
+      <div id="notices-content" class="notice-box expandable-content is-collapsed"><p>Carregando avisos...</p></div>
     </section>
 
     <section class="section" aria-labelledby="sponsors-title">
       <div class="section-heading"><h2 id="sponsors-title">Patrocínios</h2></div>
       <div id="sponsors-content" class="expandable-content sponsors is-collapsed"><div id="sponsors-grid" class="sponsors-grid"><p>Carregando patrocinadores...</p></div></div>
-      <button class="more-button" id="sponsors-toggle" type="button">Ver mais</button>
     </section>
 
     <section class="section contact-section" aria-labelledby="contact-title">
       <div class="section-heading"><h2 id="contact-title">Contato</h2></div>
-      <p>Em breve, um espaço para deixar sua mensagem para a GOSPELLAB.</p>
+      <div id="contact-content" class="expandable-content is-collapsed"><p>Em breve, um espaço para deixar sua mensagem para a GOSPELLAB.</p></div>
     </section>
 
     <footer>
@@ -70,6 +68,6 @@
 
   <audio id="audio-a" preload="metadata"></audio>
   <audio id="audio-b" preload="metadata"></audio>
-  <script src="app.js?v=20260928-1" defer></script>
+  <script src="app.js?v=20260929-2" defer></script>
 </body>
 </html>
