@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260929-1">
   <link rel="icon" href="favicon.jpg?v=20260924" type="image/jpeg">
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260924">
 </head>
@@ -18,21 +18,27 @@
   <main class="page-shell">
     <header class="site-header">
       <h1>GOSPELLAB</h1>
-      <p>Apresentando: Igreja Batista Luz</p>
+      <p>Apresentado por IBLUZ</p>
     </header>
 
     <section class="section programming" aria-labelledby="programming-title">
-      <div class="section-heading">
-        <h2 id="programming-title">Programação</h2>
-        <span class="audience" title="Visitas totais"><svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.2 12s3.5-5 9.8-5 9.8 5 9.8 5-3.5 5-9.8 5-9.8-5-9.8-5Z"></path><circle cx="12" cy="12" r="2.4"></circle></svg> <span id="view-counter">—</span></span>
+      <h2 id="programming-title" class="visually-hidden">Programação</h2>
+      <div class="hero-player">
+        <div class="hero-audience audience" title="Visitas totais"><svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.2 12s3.5-5 9.8-5 9.8 5 9.8 5-3.5 5-9.8 5-9.8-5-9.8-5Z"></path><circle cx="12" cy="12" r="2.4"></circle></svg> <span id="view-counter">—</span></div>
+        <div class="live-status"><span id="live-dot" class="live-dot"></span><span id="live-label">AO VIVO</span></div>
+        <button id="radio-toggle" class="radio-toggle" type="button" aria-pressed="false" aria-label="Iniciar">
+          <span id="radio-icon" class="radio-icon" aria-hidden="true"><span class="play-glyph"></span></span>
+          <strong id="current-title">Iniciar</strong>
+        </button>
       </div>
-
-      <div class="live-status"><span id="live-dot" class="live-dot"></span><span id="live-label">AO VIVO</span></div>
-      <button id="radio-toggle" class="radio-toggle" type="button" aria-pressed="false" aria-label="Iniciar">
-        <span id="radio-icon" class="radio-icon" aria-hidden="true"><span class="play-glyph"></span></span>
-        <strong id="current-title">Iniciar</strong>
-      </button>
     </section>
+
+    <nav class="quick-nav" aria-label="Navegação da rádio">
+      <a href="#message-title">Mensagem do Dia</a>
+      <a href="#notices-title">Notícias</a>
+      <a href="#sponsors-title">Patrocínios</a>
+      <a href="#contact-title">Contato</a>
+    </nav>
 
     <section class="section" aria-labelledby="message-title">
       <div class="section-heading"><h2 id="message-title">Mensagem do Dia</h2></div>
@@ -49,6 +55,11 @@
       <div class="section-heading"><h2 id="sponsors-title">Patrocínios</h2></div>
       <div id="sponsors-content" class="expandable-content sponsors is-collapsed"><div id="sponsors-grid" class="sponsors-grid"><p>Carregando patrocinadores...</p></div></div>
       <button class="more-button" id="sponsors-toggle" type="button">Ver mais</button>
+    </section>
+
+    <section class="section contact-section" aria-labelledby="contact-title">
+      <div class="section-heading"><h2 id="contact-title">Contato</h2></div>
+      <p>Em breve, um espaço para deixar sua mensagem para a GOSPELLAB.</p>
     </section>
 
     <footer>
