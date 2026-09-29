@@ -13,7 +13,7 @@ body {
   margin: 0;
   color: var(--ink);
   background: var(--paper);
-  font-family: "Courier Prime", "Courier New", monospace;
+  font-family: Ebrima, "Segoe UI", Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -22,7 +22,7 @@ button { color: inherit; }
 a { color: inherit; }
 .page-shell { max-width: 980px; margin: 0 auto; padding: 30px 22px 34px; }
 .site-header { text-align: center; margin-bottom: 34px; }
-.site-header h1 { margin: 0; font: 700 clamp(3rem, 8vw, 4.4rem)/.9 "Courier Prime", monospace; letter-spacing: 4px; }
+.site-header h1 { margin: 0; font: 400 clamp(3rem, 8vw, 4.4rem)/.9 Candara, Calibri, "Segoe UI", Arial, sans-serif; letter-spacing: 4px; }
 .site-header p { margin: 8px 0 0; color: var(--muted); font-size: 12px; letter-spacing: .8px; text-transform: uppercase; }
 .section { margin-top: 34px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
@@ -55,7 +55,7 @@ a { color: inherit; }
 .quick-nav button:hover, .quick-nav button[aria-expanded="true"] { color: var(--accent); background: #faf9fb; }
 .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); }
 .programming .section-heading { border-bottom: 0; }
-h2 { margin: 0 0 8px; font: 700 2rem/1 "Courier Prime", monospace; letter-spacing: .5px; text-transform: uppercase; }
+h2 { margin: 0 0 8px; font: 400 2rem/1 Ebrima, "Segoe UI", Arial, sans-serif; letter-spacing: .5px; text-transform: uppercase; }
 .expandable-content { overflow: hidden; max-height: 0; transition: max-height .45s ease, margin .45s ease; }
 .expandable-content.is-open { max-height: 1400px; }
 .expandable-content p { margin: 12px 0 0; }
