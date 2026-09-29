@@ -13,7 +13,7 @@ body {
   margin: 0;
   color: var(--ink);
   background: var(--paper);
-  font-family: Ebrima, "Segoe UI", Arial, sans-serif;
+  font-family: Lato, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -22,7 +22,7 @@ button { color: inherit; }
 a { color: inherit; }
 .page-shell { max-width: 980px; margin: 0 auto; padding: 30px 22px 34px; }
 .site-header { text-align: center; margin-bottom: 34px; }
-.site-header h1 { margin: 0; font: 400 clamp(3rem, 8vw, 4.4rem)/.9 Candara, Calibri, "Segoe UI", Arial, sans-serif; letter-spacing: 4px; }
+.site-header h1 { margin: 0; font: 400 clamp(3rem, 8vw, 4.4rem)/.9 "Encode Sans", Arial, sans-serif; letter-spacing: 4px; }
 .site-header p { margin: 8px 0 0; color: var(--muted); font-size: 12px; letter-spacing: .8px; text-transform: uppercase; }
 .section { margin-top: 34px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
@@ -43,24 +43,25 @@ a { color: inherit; }
 .radio-toggle { position: absolute; z-index: 3; left: 8%; top: 50%; display: flex; align-items: center; justify-content: center; width: 180px; height: 180px; transform: translateY(-50%); padding: 0; border: 8px solid rgba(255,255,255,.96); border-radius: 50%; background: rgba(166,165,178,.9); cursor: pointer; color: #fff; box-shadow: 0 2px 12px rgba(0,0,0,.12); }
 .radio-toggle:focus-visible, .more-button:focus-visible, .quick-nav button:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
 .radio-icon { display: inline-flex; align-items: center; justify-content: center; width: 94px; height: 102px; color: #fff; }
-.play-glyph { display: block; width: 0; height: 0; border-top: 46px solid transparent; border-bottom: 46px solid transparent; border-left: 68px solid currentColor; margin-left: 12px; }
+.play-glyph { display: block; width: 70px; height: 80px; margin-left: 8px; fill: currentColor; }
+.play-glyph path { stroke: currentColor; stroke-width: 2.5; stroke-linejoin: round; }
 .pause-glyph { display: inline-flex; gap: 10px; }
 .pause-glyph::before, .pause-glyph::after { content: ""; display: block; width: 18px; height: 70px; background: currentColor; border-radius: 2px; }
-.radio-toggle strong { position: absolute; top: 50%; left: calc(100% + 24px); width: min(520px, 48vw); transform: translateY(-50%); padding: 15px 38px; border-radius: 30px; background: rgba(255,255,255,.84); color: var(--accent); font-weight: 700; font-size: 15px; text-align: center; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.radio-toggle strong { position: absolute; top: 50%; left: calc(100% + 24px); width: min(520px, 48vw); transform: translateY(-50%); padding: 15px 38px; border-radius: 30px; background: rgba(255,255,255,.84); color: var(--accent); font-weight: 700; font-size: 15px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .radio-toggle strong:only-child { display: block; }
 .quick-nav { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 0; }
-.quick-nav button { position: relative; display: flex; align-items: center; justify-content: center; min-height: 72px; width: 100%; padding: 12px 10px; color: var(--muted); border: 0; background: transparent; cursor: pointer; font-size: 12px; text-align: center; text-transform: uppercase; }
+.quick-nav button { position: relative; display: flex; align-items: center; justify-content: center; min-height: 72px; width: 100%; padding: 12px 10px; color: var(--muted); border: 0; background: transparent; cursor: pointer; font-size: 12px; font-weight: 700; text-align: center; text-transform: uppercase; }
 .quick-nav button:not(:last-child)::after { content: ""; position: absolute; top: 50%; right: 0; width: 1px; height: 28px; transform: translateY(-50%); background: var(--line); }
 .quick-nav button:hover, .quick-nav button[aria-expanded="true"] { color: var(--accent); background: #faf9fb; }
 .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); }
 .programming .section-heading { border-bottom: 0; }
-h2 { margin: 0 0 8px; font: 400 2rem/1 Ebrima, "Segoe UI", Arial, sans-serif; letter-spacing: .5px; text-transform: uppercase; }
+h2 { margin: 0 0 8px; font: 400 2rem/1 Lato, Arial, sans-serif; letter-spacing: .5px; text-transform: uppercase; }
 .expandable-content { overflow: hidden; max-height: 0; opacity: 0; clip-path: inset(0 100% 0 0); transition: max-height .45s ease, opacity .2s ease, clip-path .45s ease, margin .45s ease; }
 .expandable-content.is-open { max-height: 1400px; opacity: 1; clip-path: inset(0 0 0 0); }
-.expandable-content p { margin: 12px 0 0; }
+.expandable-content p { margin: 12px 18px 0; text-align: justify; }
 .expandable-content.sponsors { max-height: 0; }
 .expandable-content.sponsors.is-open { max-height: 1600px; }
-.sponsors-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 18px; padding-top: 14px; }
+.sponsors-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 18px; padding: 14px 18px 0; }
 .sponsor-card { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 10px; align-items: start; }
 .sponsor-card img { width: 78px; height: 78px; object-fit: cover; border: 1px solid var(--line); background: #fafafa; }
 .sponsor-info h3 { margin: 0 0 5px; font-size: 13px; line-height: 1.25; font-weight: 700; }
@@ -71,7 +72,7 @@ h2 { margin: 0 0 8px; font: 400 2rem/1 Ebrima, "Segoe UI", Arial, sans-serif; le
 .notice-box { min-height: 0; margin-top: 0; transition: opacity .5s ease-in-out, margin .45s ease; }
 .notice-box.is-open { min-height: 26px; margin-top: 12px; }
 .notice-box.is-fading { opacity: 0; }
-.notice-box p { margin: 0 0 10px; }
+.notice-box p { margin: 12px 18px 10px; text-align: justify; }
 .sponsors a { color: inherit; }
 .contact-section p { margin: 14px 0 0; color: var(--muted); }
 .guestbook-form { padding: 18px 0 4px; }
@@ -96,7 +97,7 @@ footer p { margin: 2px 0; }
   .hero-meta { left: 14px; right: 14px; }
   .radio-toggle { left: 7%; width: 128px; height: 128px; border-width: 6px; }
   .radio-icon { width: 68px; height: 76px; }
-  .play-glyph { border-top-width: 34px; border-bottom-width: 34px; border-left-width: 50px; }
+  .play-glyph { width: 52px; height: 60px; margin-left: 5px; }
   .pause-glyph { gap: 7px; }
   .pause-glyph::before, .pause-glyph::after { width: 13px; height: 52px; }
   .radio-toggle strong { left: calc(100% + 14px); width: calc(100vw - 175px); padding: 11px 18px; font-size: 12px; }

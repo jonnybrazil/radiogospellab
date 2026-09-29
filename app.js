@@ -293,7 +293,7 @@
     if (remaining <= crossfadeSeconds + .15 && !transitioning) startNextTrack();
   }
 
-  function setRadioIcon(paused) { $('radio-icon').innerHTML = paused ? '<span class="pause-glyph"></span>' : '<span class="play-glyph"></span>'; }
+  function setRadioIcon(paused) { $('radio-icon').innerHTML = paused ? '<span class="pause-glyph"></span>' : '<svg class="play-glyph" viewBox="0 0 70 80" aria-hidden="true"><path d="M8 5 C5 3 2 5 2 9 V71 C2 75 5 77 8 75 L64 44 C68 42 68 38 64 36 Z"></path></svg>'; }
 
   function setLoadingState(loading) {
     const toggle = $('radio-toggle');
