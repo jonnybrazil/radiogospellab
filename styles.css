@@ -61,8 +61,8 @@ a { color: inherit; }
 .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); }
 .programming .section-heading { border-bottom: 0; }
 h2 { margin: 0 0 8px; font: 400 2rem/1 Lato, Arial, sans-serif; letter-spacing: .5px; text-transform: uppercase; }
-.expandable-content { overflow: hidden; max-height: 0; opacity: 0; clip-path: inset(0 100% 0 0); transition: max-height .45s ease, opacity .2s ease, clip-path .45s ease, margin .45s ease; }
-.expandable-content.is-open { max-height: 1400px; opacity: 1; clip-path: inset(0 0 0 0); }
+.expandable-content { overflow: hidden; max-height: 0; opacity: 0; transform: translateY(18px); transition: max-height .45s ease, opacity .3s ease, transform .45s ease, margin .45s ease; }
+.expandable-content.is-open { max-height: 1400px; opacity: 1; transform: translateY(0); }
 .expandable-content p { margin: 12px 18px 0; text-align: justify; }
 .expandable-content.sponsors { max-height: 0; }
 .expandable-content.sponsors.is-open { max-height: 1600px; }
