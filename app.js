@@ -117,11 +117,19 @@
     try { fresh = await loadPlaylistFromEndpoint(); }
     catch (_) { remote = false; fresh = await loadPlaylistFromFile(); }
     if (!fresh.length) throw new Error('Playlist vazia');
+    const oldPlaylist = playlist;
+    const oldCursor = currentIndex;
     const oldUrl = currentTrack?.url;
+    const sameOrder = oldPlaylist.length === fresh.length && oldPlaylist.every((track, index) => track.url === fresh[index].url);
     playlist = fresh;
-    const stillCurrent = oldUrl ? playlist.findIndex(t => t.url === oldUrl) : -1;
-    if (stillCurrent >= 0) currentIndex = (stillCurrent + 1) % playlist.length;
-    else if (currentIndex >= playlist.length) currentIndex = 0;
+    if (sameOrder) currentIndex = oldCursor;
+    else if (oldUrl) {
+      const oldPosition = (oldCursor - 1 + oldPlaylist.length) % oldPlaylist.length;
+      const matches = playlist.flatMap((track, index) => track.url === oldUrl ? [index] : []);
+      const closest = matches.reduce((best, index) =>
+        best === -1 || Math.abs(index - oldPosition) < Math.abs(best - oldPosition) ? index : best, -1);
+      currentIndex = closest >= 0 ? (closest + 1) % playlist.length : oldCursor % playlist.length;
+    } else currentIndex = oldCursor % playlist.length;
     nextTrack = currentTrack ? (playlist[currentIndex] || null) : null;
     updateNextLabel();
     setText('queue-status', remote ? 'Google Sheets' : `Fila local · ${playlist.length} faixas`);
@@ -242,6 +250,19 @@
   function effectiveVolume() { return muted ? 0 : volume; }
   function setMasterVolume() { if (masterGain) masterGain.gain.setTargetAtTime(effectiveVolume(), audioContext.currentTime, .03); }
   function setGain(index, value, duration = .15) { if (gain[index]) gain[index].gain.setTargetAtTime(value, audioContext.currentTime, duration); }
+  function crossfadeGain(index, value, duration) {
+    const param = gain[index].gain;
+    const now = audioContext.currentTime;
+    param.cancelScheduledValues(now);
+    param.setValueAtTime(param.value, now);
+    if (duration > 0) param.linearRampToValueAtTime(value, now + duration);
+    else param.setValueAtTime(value, now);
+  }
+  function fadeDuration(duration) {
+    return Number.isFinite(duration) && duration < 30
+      ? Math.min(crossfadeSeconds, Math.max(.6, duration * .15))
+      : crossfadeSeconds;
+  }
 
   function updateMetadata(track) {
     if (!('mediaSession' in navigator)) return;
@@ -254,12 +275,17 @@
   function prepareNext() { nextTrack = playlist[currentIndex] || null; updateNextLabel(); }
 
   async function startTrack(track, index, immediate = false) {
-    if (!track) return;
+    if (!track) return false;
     ensureAudioGraph();
     const nextPlayer = active === 0 ? 1 : 0;
     const element = audio[nextPlayer];
     element.src = track.url; element.load();
-    try { await element.play(); } catch (_) { showPlayerMessage('Toque em Iniciar rádio para liberar o áudio.'); return; }
+    try { await element.play(); }
+    catch (error) {
+      if (error.name === 'NotAllowedError') { playing = false; showPlayerMessage('Toque em Iniciar rádio para liberar o áudio.'); }
+      else showPlayerMessage(`Não foi possível carregar ${track.title}. Pulando para a próxima.`);
+      return false;
+    }
     if (initialProgramStart) {
       const seekRandomPosition = () => {
         if (Number.isFinite(element.duration) && element.duration > 20) {
@@ -270,29 +296,40 @@
       else element.addEventListener('loadedmetadata', seekRandomPosition, { once: true });
       initialProgramStart = false;
     }
-    setGain(nextPlayer, 0, 0);
-    setGain(nextPlayer, effectiveVolume() > 0 ? 1 : 0, immediate ? .01 : crossfadeSeconds);
-    if (!immediate) setGain(active, 0, crossfadeSeconds);
+    const fade = immediate ? .01 : fadeDuration(audio[active].duration);
+    crossfadeGain(nextPlayer, 0, 0);
+    crossfadeGain(nextPlayer, effectiveVolume() > 0 ? 1 : 0, fade);
+    if (!immediate) crossfadeGain(active, 0, fade);
     const oldPlayer = active; active = nextPlayer; currentTrack = track; currentIndex = (index + 1) % playlist.length;
     prepareNext(); updateMetadata(track); setText('current-title', track.title); $('radio-toggle').classList.add('is-playing'); $('radio-toggle').setAttribute('aria-pressed', 'true'); $('radio-toggle').setAttribute('aria-label', `Pausar ${track.title}`); setRadioIcon(true); $('live-dot').classList.add('is-live');
-    if (!immediate) window.setTimeout(() => { audio[oldPlayer].pause(); audio[oldPlayer].removeAttribute('src'); }, crossfadeSeconds * 1000 + 250);
+    if (!immediate) window.setTimeout(() => { audio[oldPlayer].pause(); audio[oldPlayer].removeAttribute('src'); }, fade * 1000 + 250);
+    return true;
   }
 
   async function startNextTrack(force = false) {
     if (!playing || transitioning || !playlist.length) return;
     transitioning = true;
-    const track = nextTrack || playlist[currentIndex];
-    const index = currentIndex;
-    nextTrack = null;
-    await startTrack(track, index, force || !currentTrack);
-    transitioning = false;
+    try {
+      for (let attempts = 0; playing && attempts < playlist.length; attempts += 1) {
+        const index = currentIndex;
+        const track = nextTrack || playlist[index];
+        nextTrack = null;
+        if (await startTrack(track, index, force || !currentTrack)) return;
+        currentIndex = (index + 1) % playlist.length;
+      }
+      if (playing) { stopRadio(); showPlayerMessage('Não foi possível carregar a programação. Tente novamente.'); }
+    } catch (_) {
+      stopRadio();
+      showPlayerMessage('Não foi possível carregar a programação. Tente novamente.');
+    } finally { transitioning = false; }
   }
 
-  function onTimeUpdate() {
+  function onTimeUpdate(event) {
+    if (!playing || event.currentTarget !== audio[active]) return;
     const element = audio[active], duration = element.duration;
     if (!Number.isFinite(duration)) return;
     const remaining = duration - element.currentTime;
-    if (remaining <= crossfadeSeconds + .15 && !transitioning) startNextTrack();
+    if (remaining <= fadeDuration(duration) + .15 && !transitioning) startNextTrack();
   }
 
   function setRadioIcon(paused) { $('radio-icon').innerHTML = paused ? '<span class="pause-glyph"></span>' : '<svg class="play-glyph" viewBox="0 0 70 80" aria-hidden="true"><path d="M8 5 C5 3 2 5 2 9 V71 C2 75 5 77 8 75 L64 44 C68 42 68 38 64 36 Z"></path></svg>'; }
