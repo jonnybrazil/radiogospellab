@@ -20,6 +20,7 @@
   let currentTrack = null;
   let nextTrack = null;
   let playing = false;
+  let radioActionPending = false;
   let transitioning = false;
   let refreshTimer;
   let refreshMs = DEFAULT_REFRESH_MS;
@@ -307,33 +308,44 @@
   function stopRadio() { const wasPlaying = playing; playing = false; stopAnalyticsHeartbeat(); if (wasPlaying) sendAnalyticsEvent('radio_pause'); audio.forEach((element, index) => { element.pause(); if (gain[index]) setGain(index, 0, .1); }); setRadioIcon(false); $('radio-toggle').classList.remove('is-playing'); $('live-dot').classList.remove('is-live'); $('radio-toggle').setAttribute('aria-pressed', 'false'); $('radio-toggle').setAttribute('aria-label', `Continuar ${currentTrack?.title || 'rádio'}`); }
 
   async function toggleRadio() {
-    if (playing) { stopRadio(); return; }
-    if (currentTrack && audio[active].src) {
-      ensureAudioGraph();
-      if (audioContext.state === 'suspended') await audioContext.resume();
-      try { await audio[active].play(); } catch (_) { showPlayerMessage('Toque em Iniciar rádio para liberar o áudio.'); return; }
-      playing = true;
-      setText('current-title', currentTrack.title);
-      setGain(active, effectiveVolume(), .1);
-      setRadioIcon(true);
-      $('radio-toggle').classList.add('is-playing');
-      $('live-dot').classList.add('is-live');
-      $('radio-toggle').setAttribute('aria-pressed', 'true');
-      $('radio-toggle').setAttribute('aria-label', `Pausar ${currentTrack.title}`);
-      sendAnalyticsEvent('radio_resume');
-      startAnalyticsHeartbeat();
-      return;
+    if (radioActionPending) return;
+    const toggle = $('radio-toggle');
+    radioActionPending = true;
+    toggle.disabled = true;
+    toggle.setAttribute('aria-busy', 'true');
+    try {
+      if (playing) { stopRadio(); return; }
+      if (currentTrack && audio[active].src) {
+        ensureAudioGraph();
+        if (audioContext.state === 'suspended') await audioContext.resume();
+        try { await audio[active].play(); } catch (_) { showPlayerMessage('Toque em Iniciar rádio para liberar o áudio.'); return; }
+        playing = true;
+        setText('current-title', currentTrack.title);
+        setGain(active, effectiveVolume(), .1);
+        setRadioIcon(true);
+        toggle.classList.add('is-playing');
+        $('live-dot').classList.add('is-live');
+        toggle.setAttribute('aria-pressed', 'true');
+        toggle.setAttribute('aria-label', `Pausar ${currentTrack.title}`);
+        sendAnalyticsEvent('radio_resume');
+        startAnalyticsHeartbeat();
+        return;
+      }
+      setLoadingState(true);
+      try { await loadPlaylist(); } catch (_) { showPlayerMessage('Não foi possível carregar a playlist.'); return; }
+      ensureAudioGraph(); if (audioContext.state === 'suspended') await audioContext.resume(); playing = true;
+      currentIndex = Math.floor(Math.random() * playlist.length);
+      nextTrack = null;
+      setText('current-title', 'Sintonizando...');
+      toggle.setAttribute('aria-label', 'Sintonizando');
+      await startNextTrack(true);
+      if (currentTrack) { sendAnalyticsEvent('radio_start'); startAnalyticsHeartbeat(); }
+    } finally {
+      setLoadingState(false);
+      toggle.disabled = false;
+      toggle.removeAttribute('aria-busy');
+      radioActionPending = false;
     }
-    setLoadingState(true);
-    try { await loadPlaylist(); } catch (_) { setLoadingState(false); showPlayerMessage('Não foi possível carregar a playlist.'); return; }
-    ensureAudioGraph(); if (audioContext.state === 'suspended') await audioContext.resume(); playing = true;
-    currentIndex = Math.floor(Math.random() * playlist.length);
-    nextTrack = null;
-    setLoadingState(false);
-    setText('current-title', 'Sintonizando...');
-    $('radio-toggle').setAttribute('aria-label', 'Sintonizando');
-    await startNextTrack(true);
-    if (currentTrack) { sendAnalyticsEvent('radio_start'); startAnalyticsHeartbeat(); }
   }
 
   function showPlayerMessage(message) { setText('player-message', message); window.setTimeout(() => { if ($('player-message').textContent === message) setText('player-message', ''); }, 6000); }
