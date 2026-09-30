@@ -369,9 +369,11 @@
     document.querySelectorAll('.expandable-content.is-open').forEach(panel => {
       if (panel === content) return;
       panel.classList.remove('is-open');
+      panel.closest('.section')?.classList.remove('is-active');
       document.querySelector(`.quick-nav button[data-panel="${panel.id}"]`)?.setAttribute('aria-expanded', 'false');
     });
     content.classList.toggle('is-open', open);
+    content.closest('.section')?.classList.toggle('is-active', open);
     if (trigger) trigger.setAttribute('aria-expanded', String(open));
     if (open) window.setTimeout(() => content.closest('.section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
   }
