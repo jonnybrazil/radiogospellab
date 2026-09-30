@@ -11,6 +11,7 @@
   const DEFAULT_REFRESH_MS = 60_000;
   const DEFAULT_CROSSFADE_SECONDS = 6;
   const DEFAULT_VOLUME = 0.85;
+  const PUBLIC_VISITS_BASELINE = 402;
 
   const $ = (id) => document.getElementById(id);
   const audio = [$('audio-a'), $('audio-b')];
@@ -140,7 +141,7 @@
       const response = await fetch(cacheBust(url), { cache: 'no-store' });
       if (!response.ok) throw new Error('Não foi possível registrar a visita');
       const payload = await response.json();
-      if (Number.isFinite(Number(payload.visitsTotal))) setText('view-counter', Number(payload.visitsTotal).toLocaleString('pt-BR'));
+      if (Number.isFinite(Number(payload.visitsTotal))) setText('view-counter', Math.max(0, Number(payload.visitsTotal) - PUBLIC_VISITS_BASELINE).toLocaleString('pt-BR'));
     } catch (_) { setText('view-counter', '—'); }
   }
 
