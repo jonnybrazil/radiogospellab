@@ -40,7 +40,8 @@ a { color: inherit; }
 .live-status { display: flex; align-items: center; gap: 7px; color: #66656c; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #c7c7c7; display: inline-block; }
 .live-dot.is-live { background: #c62828; box-shadow: 0 0 0 3px rgba(198,40,40,.14); }
-.radio-toggle { position: absolute; z-index: 3; left: 8%; top: 50%; display: flex; align-items: center; justify-content: center; width: 180px; height: 180px; transform: translateY(-50%); padding: 0; border: 8px solid rgba(255,255,255,.96); border-radius: 50%; background: rgba(166,165,178,.9); cursor: pointer; color: #fff; box-shadow: 0 2px 12px rgba(0,0,0,.12); -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; touch-action: manipulation; user-select: none; }
+.radio-toggle { position: absolute; z-index: 3; left: 8%; top: 50%; display: flex; align-items: center; justify-content: center; width: 180px; height: 180px; transform: translateY(-50%); padding: 0; border: 8px solid rgba(255,255,255,.96); border-radius: 50%; background: rgba(166,165,178,.9); cursor: pointer; color: #fff; box-shadow: 0 2px 12px rgba(0,0,0,.12); -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; touch-action: manipulation; user-select: none; transition: background-color .2s ease; }
+.radio-toggle:hover { background: var(--accent); }
 .radio-toggle:focus:not(:focus-visible) { outline: none; }
 .radio-toggle > * { pointer-events: none; }
 .radio-toggle:disabled { opacity: 1; cursor: wait; }
