@@ -89,7 +89,8 @@
   }
 
   async function loadPlaylistFromEndpoint() {
-    const response = await fetch(cacheBust(PROGRAMMING_ENDPOINT), { cache: 'no-store' });
+    const endpoint = `${PROGRAMMING_ENDPOINT}?action=playlist`;
+    const response = await fetch(cacheBust(endpoint), { cache: 'no-store' });
     if (!response.ok) throw new Error(`Programação indisponível (${response.status})`);
     const payload = await response.json();
     if (!Array.isArray(payload.playlist) || !payload.playlist.length) throw new Error('Programação vazia');

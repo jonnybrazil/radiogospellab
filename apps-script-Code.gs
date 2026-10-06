@@ -53,8 +53,6 @@ function getPlaylistPayload_() {
   let ordered;
   if (config.sequencia) {
     ordered = config.sequencia.split(',').map(value => byNumber[String(value).trim()]).filter(Boolean);
-    const used = new Set(ordered.map(item => item.number));
-    ordered = ordered.concat(items.filter(item => !used.has(item.number)).sort((a, b) => a.order - b.order));
   } else {
     ordered = items.sort((a, b) => a.order - b.order);
   }
