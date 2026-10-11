@@ -36,6 +36,7 @@
   let noticeIndex = 0;
   let sponsorsLoaded = false;
   let messageLoaded = false;
+  let hasRemotePlaylist = false;
   let initialProgramStart = true;
   const analyticsSession = sessionStorage.getItem('radiogospellab-session') || (window.crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
   let analyticsTimer = null;
@@ -115,8 +116,21 @@
   async function loadPlaylist() {
     let fresh;
     let remote = true;
-    try { fresh = await loadPlaylistFromEndpoint(); }
-    catch (_) { remote = false; fresh = await loadPlaylistFromFile(); }
+    try {
+      fresh = await loadPlaylistFromEndpoint();
+      hasRemotePlaylist = true;
+    } catch (_) {
+      remote = false;
+      // Once the remote queue is loaded, keep it during a transient API
+      // failure instead of replacing a working program with playlist.csv.
+      if (hasRemotePlaylist && playlist.length) {
+        refreshMs = 15_000;
+        schedulePlaylistRefresh();
+        return;
+      }
+      refreshMs = 15_000;
+      fresh = await loadPlaylistFromFile();
+    }
     if (!fresh.length) throw new Error('Playlist vazia');
     const oldPlaylist = playlist;
     const oldCursor = currentIndex;
