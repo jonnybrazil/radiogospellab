@@ -129,7 +129,8 @@
         return;
       }
       refreshMs = 15_000;
-      fresh = await loadPlaylistFromFile();
+      schedulePlaylistRefresh();
+      throw new Error('Programação remota aguardando conexão');
     }
     if (!fresh.length) throw new Error('Playlist vazia');
     const oldPlaylist = playlist;
@@ -385,7 +386,7 @@
         return;
       }
       setLoadingState(true);
-      try { await loadPlaylist(); } catch (_) { showPlayerMessage('Não foi possível carregar a playlist.'); return; }
+      try { await loadPlaylist(); } catch (_) { setText('current-title', 'Aguarde...'); return; }
       ensureAudioGraph(); if (audioContext.state === 'suspended') await audioContext.resume(); playing = true;
       currentIndex = Math.floor(Math.random() * playlist.length);
       nextTrack = null;
