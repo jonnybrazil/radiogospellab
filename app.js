@@ -12,6 +12,7 @@
   const DEFAULT_CROSSFADE_SECONDS = 6;
   const DEFAULT_VOLUME = 0.85;
   const PUBLIC_VISITS_BASELINE = 402;
+  const PLAYER_VERSION = '20261012-2';
 
   const $ = (id) => document.getElementById(id);
   const audio = [$('audio-a'), $('audio-b')];
@@ -55,6 +56,23 @@
   }
   function stopAnalyticsHeartbeat() { if (analyticsTimer) { clearInterval(analyticsTimer); analyticsTimer = null; } }
   sessionStorage.setItem('radiogospellab-session', analyticsSession);
+
+  async function refreshPlayerVersion() {
+    try {
+      const registration = await navigator.serviceWorker?.getRegistration();
+      await registration?.update();
+    } catch (_) {}
+    try {
+      const response = await fetch(`version.json?t=${Date.now()}`, { cache: 'no-store' });
+      if (!response.ok) return true;
+      const payload = await response.json();
+      if (payload.version && payload.version !== PLAYER_VERSION) {
+        window.location.reload();
+        return false;
+      }
+    } catch (_) {}
+    return true;
+  }
 
   function parseCSV(text) {
     const rows = [];
@@ -369,6 +387,7 @@
     toggle.setAttribute('aria-busy', 'true');
     try {
       if (playing) { stopRadio(); return; }
+      if (!await refreshPlayerVersion()) return;
       if (currentTrack && audio[active].src) {
         ensureAudioGraph();
         if (audioContext.state === 'suspended') await audioContext.resume();

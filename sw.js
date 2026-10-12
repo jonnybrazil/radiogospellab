@@ -1,5 +1,5 @@
-const CACHE_NAME = 'radio-gospel-lab-v22';
-const APP_SHELL = ['.', './index.html', './styles.css', './app.js', './manifest.json'];
+const CACHE_NAME = 'radio-gospel-lab-v23';
+const APP_SHELL = ['.', './index.html', './styles.css', './app.js', './manifest.json', './version.json'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
