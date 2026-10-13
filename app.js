@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const PROGRAMMING_ENDPOINT = "https://script.google.com/macros/s/AKfycbyCSYeNWHVFQJwgyokNiFrWbGkbrLkCtCQ-0S6jJUenJkhwtSfSScdTvlJbdaUxcgCO4g/exec";
+  const PROGRAMMING_ENDPOINT = "https://script.google.com/macros/s/AKfycbxNFRBbIHy6sQfRz8bJds0GWPQNeqr-ftaGKwyizk8Er3v2wlp2AzEFTEEvxtsTr45Kdw/exec";
   const LOCAL_PLAYLIST_SOURCE = "playlist.csv";
   const CONTENT = {
     message: "mensagem.txt",
