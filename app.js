@@ -10,6 +10,7 @@
   };
   const DEFAULT_REFRESH_MS = 60_000;
   const DEFAULT_CROSSFADE_SECONDS = 6;
+  const AUDIO_LOAD_TIMEOUT_MS = 5_000;
   const DEFAULT_VOLUME = 0.85;
   const PUBLIC_VISITS_BASELINE = 402;
   const PLAYER_VERSION = '20261012-2';
@@ -314,10 +315,25 @@
     const nextPlayer = active === 0 ? 1 : 0;
     const element = audio[nextPlayer];
     element.src = track.url; element.load();
-    try { await element.play(); }
+    try {
+      let timeoutId;
+      await Promise.race([
+        element.play(),
+        new Promise((_, reject) => {
+          timeoutId = window.setTimeout(() => {
+            const error = new Error('Tempo limite de carregamento excedido.');
+            error.name = 'AudioLoadTimeoutError';
+            reject(error);
+          }, AUDIO_LOAD_TIMEOUT_MS);
+        })
+      ]).finally(() => window.clearTimeout(timeoutId));
+    }
     catch (error) {
       if (error.name === 'NotAllowedError') { playing = false; showPlayerMessage('Toque em Iniciar rádio para liberar o áudio.'); }
       else showPlayerMessage(`Não foi possível carregar ${track.title}. Pulando para a próxima.`);
+      element.pause();
+      element.removeAttribute('src');
+      element.load();
       return false;
     }
     if (initialProgramStart) {
